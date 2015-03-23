@@ -1,0 +1,94 @@
+@media screen and (min-width: 768px) {
+	#mmodal .modal-dialog  {width:500px;}
+}
+
+#main_div{
+   min-width: 50px;
+}
+#menu_div{ 
+   width: 15%;
+}
+#menu2_div{ 
+    width:15%;
+}
+/*------------------------- nav div --------------------------------------*/ 
+#mmodal ul{
+   margin-bottom: 15px;
+}
+#accordionMod .panel-heading{ 
+    padding: 5px 5px 5px 5px;
+}
+#accordionMod .panel-heading a{ 
+    text-decoration: none;
+}
+#accordionMod .panel-group{ 
+    margin-bottom: 5px;
+}
+#accordionMod .panel-body, #accordionMod .list-group, #accordionMod .panel-body input, #accordionMod .panel-heading input  {
+   padding: 0px !important;
+   margin: 0px !important;
+}
+#accordionMod .list-group-item  {
+   padding: 0px 0px 0px 50px !important;
+   margin: 0px !important;
+   border: 1px solid transparent;
+}
+/*------------------------- main div --------------------------------------*/ 
+#divSelectDb, #resultIframe{ 
+    margin-top: 15px;
+}
+#divSelectDb{ 
+    width: 30%;
+    min-width:200px;
+}
+#strSql{
+   width:95%;
+   min-width:200px;
+   resize:vertical;
+   margin-top: 15px;
+   margin-bottom: 15px;
+}  
+#resultIframe {
+    border: 0;
+    width: 95%;
+    height:400px;
+}
+/*------------------------- menu div --------------------------------------*/ 
+#accordionN .panel-heading{ 
+    padding: 5px 5px 5px 5px;
+}
+#accordionN .panel-heading a{ 
+    text-decoration: none;
+}
+#accordionN .panel-body, #accordionN .list-group, #accordionN .panel-body input, #accordionN .panel-heading input  {
+   padding: 0px !important;
+   margin: 0px !important;
+}
+#accordionN .list-group-item  {
+   padding: 0px !important;
+   margin: 0px !important;
+   border: 1px solid transparent;
+}
+/*------------------------- menu2 div -------------------------------------*/ 
+#accordionA .panel-body {
+   padding: 5px;
+}
+#daccordionA .list-group radio {
+   margin: 0px ;
+}
+#accordionA .list-group  {
+   margin: 0px ;
+}
+#accordionA .list-group-item {
+   padding-top: 5px;
+   padding-bottom: 5px;
+   border: 1px solid transparent;
+}
+#accordionA .panel-body, #accordionA .list-group, #accordionA .panel-body input, #accordionA .panel-heading input  {
+   /*padding: 0px !important;*/
+   /*margin: 0px !important;*/
+} 
+#div_add{
+   text-align: right;
+}
+/*------------------------- html result -------------------------------------*/ 
