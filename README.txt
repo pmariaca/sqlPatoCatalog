@@ -11,7 +11,7 @@ You can customize your view with different less of bootstrap in index.php file
 <link rel="stylesheet" type="text/css" href="dist/less/watchDarkly/variables.less" />
 
 
-Tested with Php.5.12, Myssql 5.6, and Apache or lighttpd server.
+Tested with Php.5.12 with MySqli extension, Myssql 5.6, and Apache or lighttpd server.
 
 INSTALL
 Unzip in some directory
