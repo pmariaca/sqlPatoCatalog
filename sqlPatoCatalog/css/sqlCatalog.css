@@ -1,15 +1,33 @@
 @media screen and (min-width: 768px) {
 	#mmodal .modal-dialog  {width:500px;}
 }
-
 #main_div{
-   min-width: 50px;
+   display:block;
+   position: relative;
+   float:left;
+   /*left:200px;*/
+   left: 12%;
+   /*width:65%;*/
+   width:74%;
+   height:800px;
+   margin: 15px;
 }
 #menu_div{ 
-   width: 15%;
+   position: absolute;
+    float:left;
+    /*width:200px;*/
+    width:12%;
+    padding-left: 2px;
+    padding-top: 2px;
+    margin:0px;
 }
 #menu2_div{ 
-    width:15%;
+    position: relative;
+    float:right;
+    /*width:155px;*/
+    width: 12%;
+    padding: 2px 12px 0px 12px;
+    margin: 0px;
 }
 /*------------------------- nav div --------------------------------------*/ 
 #mmodal ul{
@@ -34,31 +52,29 @@
    border: 1px solid transparent;
 }
 /*------------------------- main div --------------------------------------*/ 
-#divSelectDb, #resultIframe{ 
-    margin-top: 15px;
-}
-#divSelectDb{ 
-    width: 30%;
-    min-width:200px;
-}
 #strSql{
-   width:95%;
+   width:100%;
    min-width:200px;
    resize:vertical;
+   position: relative;
    margin-top: 15px;
    margin-bottom: 15px;
 }  
-#resultIframe {
-    border: 0;
-    width: 95%;
-    height:400px;
+#divSelectDb{ 
+    width: 30%;
+}
+/*------------------------- result ---------------------------------*/ 
+#tblResult .pagination {
+    background-color: red !important;
+}
+.table{font-size:14px;}
+.table tr, .table td {
+   padding: 2px !important;
+   margin: 0px !important;
 }
 /*------------------------- menu div --------------------------------------*/ 
 #accordionN .panel-heading{ 
     padding: 5px 5px 5px 5px;
-}
-#accordionN .panel-heading a{ 
-    text-decoration: none;
 }
 #accordionN .panel-body, #accordionN .list-group, #accordionN .panel-body input, #accordionN .panel-heading input  {
    padding: 0px !important;
@@ -69,7 +85,16 @@
    margin: 0px !important;
    border: 1px solid transparent;
 }
+ 
 /*------------------------- menu2 div -------------------------------------*/ 
+#menu2_div #sendSql{
+   margin-top: 15px;
+   margin-bottom: 15px;
+}
+#menu2_div #bigger, #menu2_div #smoller{
+   margin-right: 5px;
+   margin-bottom: 15px;
+}
 #accordionA .panel-body {
    padding: 5px;
 }
@@ -87,8 +112,7 @@
 #accordionA .panel-body, #accordionA .list-group, #accordionA .panel-body input, #accordionA .panel-heading input  {
    /*padding: 0px !important;*/
    /*margin: 0px !important;*/
-} 
-#div_add{
+}
+#accordionA #div_add{
    text-align: right;
 }
-/*------------------------- html result -------------------------------------*/ 
