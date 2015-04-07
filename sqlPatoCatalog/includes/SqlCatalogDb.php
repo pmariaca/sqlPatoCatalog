@@ -14,7 +14,6 @@ class SqlCatalogDb {
    private $user;
    private $pass;
    private $mysqli;
-   private $error = "";
 
    /**
     * define servers
@@ -136,34 +135,88 @@ class SqlCatalogDb {
       $rows = array();
       $numcols = array();
       $numRows = "";
+      //$this->mysqli->query('set profiling=1');
       if($result = $this->mysqli->query($sql)){
          if($result === true){
-            echo "<pre>";
-            print_r($this->mysqli->info);
-            echo "</pre>";
-            return;
-         }
-         $numRows = "numRows: " . $result->num_rows;
-         $numcols = mysqli_field_count($this->mysqli);
-         while($finfo = mysqli_fetch_field($result)){
-            $arrInfo[]['header'] = $finfo->name;
-         }
-
-         $k = -1;
-         while($row = $result->fetch_row()){
-            $k++;
-            for($i = 0; $i < $numcols; $i++){
-               $rows[$k][] = $row[$i];
+            if(!is_null($this->mysqli->info)){
+               $arrInfo[] = $this->mysqli->info;
+            }else{
+               $arrInfo[] = "<pre>".var_export($result, true)."</pre>";
             }
-         }
-         $result->close();
-      }
+         }else{
+            $numRows = "numRows: " . $result->num_rows;
+            $numcols = mysqli_field_count($this->mysqli);
+            while($finfo = mysqli_fetch_field($result)){
+               $arrInfo[] = $finfo->name;
+            }
 
-      $this->error = mysqli_error($this->mysqli);
-      return array('info' => $arrInfo, 'row' => $rows,
+            $k = -1;
+            while($row = $result->fetch_row()){
+               $k++;
+               for($i = 0; $i < $numcols; $i++){
+                  $rows[$k][] = $row[$i];
+               }
+            }
+//echo "<pre>";var_dump($result);echo "</pre>"; 
+            $result->close();
+         }
+      }
+      //$this->mysqli->query('set profiling=0');
+    
+      $error = mysqli_error($this->mysqli);
+      return array('info' => $arrInfo, 
+          'row' => $rows,
           'numcols' => $numcols,
           'numRows' => $numRows,
-          'error' => $this->error);
+          'error' => $error);
+   }
+   
+   private function findQuery_r($sql)
+   {
+      //error_reporting(0);
+      if(trim($sql) == ""){
+         return;
+      }
+      $sql = stripslashes($sql);
+
+      $arrInfo = array();
+      $rows = array();
+      $numcols = array();
+      $numRows = "";
+      //$this->mysqli->query('set profiling=1');
+      if($result = $this->mysqli->query($sql)){
+         if($result === true){
+            if(!is_null($this->mysqli->info)){
+               $arrInfo[]['header'] = $this->mysqli->info;
+            }else{
+               $arrInfo[]['header'] = "<pre>".var_export($result, true)."</pre>";
+            }
+         }else{
+            $numRows = "numRows: " . $result->num_rows;
+            $numcols = mysqli_field_count($this->mysqli);
+            while($finfo = mysqli_fetch_field($result)){
+               $arrInfo[]['header'] = $finfo->name;
+            }
+
+            $k = -1;
+            while($row = $result->fetch_row()){
+               $k++;
+               for($i = 0; $i < $numcols; $i++){
+                  $rows[$k][] = $row[$i];
+               }
+            }
+//echo "<pre>";var_dump($result);echo "</pre>"; 
+            $result->close();
+         }
+      }
+      //$this->mysqli->query('set profiling=0');
+    
+      $error = mysqli_error($this->mysqli);
+      return array('info' => $arrInfo, 
+          'row' => $rows,
+          'numcols' => $numcols,
+          'numRows' => $numRows,
+          'error' => $error);
    }
    
    /**
@@ -211,32 +264,8 @@ class SqlCatalogDb {
     */
    public function getTblResult($sql)
    {
-      $result = $this->mySql($sql);     
-      $arrResult = array();
-      $arrResult[0] = array();
-      $arrResult[1] = array();
-      $arrMessage = array();
-      $arrMessage['error'] = "";
-      $arrMessage['numRows'] = "";
-      //echo "<pre>";print_r($result);echo "</pre>";
-      if(is_array($result)){
-         if(array_key_exists('error', $result)){
-            $arrMessage['error'] = $result['error'];
-         }
-         foreach($result['info'] as $finfo){
-            $arrResult[0][] = $finfo['header'];
-         }
-         $k = -1;
-
-         $r = 0;
-         foreach($result['row'] as $k => $row){
-            foreach($row as $kk => $roww){
-               $arrResult[1][$r][] = $roww;
-            }
-            $r++;
-         }
-      }
-      return array($arrResult, $result);
+      $arrResult = $this->mySql($sql);     
+      return $arrResult;
    }
 }
 ?>
