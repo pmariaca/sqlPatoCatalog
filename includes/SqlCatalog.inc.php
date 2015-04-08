@@ -32,19 +32,21 @@ include_once ("ManageFiles.php");
 include_once ("SqlCatalogXml.php");
 include_once ("SqlCatalogDb.php");
 
+// search if data is in config file
 $f = new ManageFiles();
 $flg = $f->findConf();
 $arr = $f->findHosts();
 $srv = $arr[0]['srv'];
 $usr = $arr[0]['user'];
 
+$arrResult=array();
 $arrAccordion = array();
 $o = new SqlCatalog($_REQUEST);
 $arr = $o->findTodo();
 if($arr['t']==1){
    $arrAccordion = $arr['arrAccordion'];
 }
-
+   
 /* ************************************************************************************** */
 
 /**
@@ -56,10 +58,20 @@ if($arr['t']==1){
 class SqlCatalog {
 
    private $request;
+   private $srv = "";
+   private $usr = "";
+   private $pwd = "";
    
+   /**
+    * 
+    * @param array $request
+    */
    function __construct($request)
    {
       $this->request = $request;  
+      if($this->request['srv'] && trim($this->request['srv'])!=""){$this->srv=$this->request['srv'];}
+      if($this->request['usr'] && trim($this->request['usr'])!=""){$this->usr=$this->request['usr'];}
+      if($this->request['pwd'] && trim($this->request['pwd'])!=""){$this->pwd=$this->request['pwd'];}
    }
 
    /**
@@ -69,7 +81,6 @@ class SqlCatalog {
    public function findTodo()
    {  
       $t = 0;
-      $alert = "";
       $arrAccordion = array();
   //echo "<pre>";print_r($this->request);echo "</pre>";    
       if (empty($this->request)) {   
@@ -79,13 +90,13 @@ class SqlCatalog {
       }else{
          
          if( isset($this->request['go']) && $this->request['go'] == 'db') {
-            $alert = $this->requestDb();
+            $this->requestDb();
          }
          if( isset($this->request['go']) && $this->request['go'] == 'xml') {
             $this->requestXml();
          }
       }
-      return array('t'=>$t ,'arrAccordion'=>$arrAccordion, 'alert'=>$alert);
+      return array('t'=>$t ,'arrAccordion'=>$arrAccordion);
    }
    
    /**
@@ -95,12 +106,13 @@ class SqlCatalog {
    private function requestDb()
    {
       if ($this->request['type'] == 'findSrv') {
-         $conn = new SqlCatalogDb('', $this->request['srv'], $this->request['usr'], $this->request['pwd']);
+         $conn = new SqlCatalogDb('', $this->srv, $this->usr,$this->pwd);
          $arr = $conn->findDB();
          ob_clean();
          echo json_encode($arr);
-         
-      }elseif ($this->request['type'] == 'saveSrv') { 
+  
+      }elseif ($this->request['type'] == 'saveSrv') {
+// echo "<pre>";print_r($this->request);echo "</pre>";   
          // verificar que esta correcto
          if(isset($this->request['itemSrv']) && isset($this->request['itemUsr']) && isset($this->request['itemPass'])){       
             $conn = new SqlCatalogDb();           
@@ -118,6 +130,18 @@ class SqlCatalog {
             $f = new ManageFiles();
             $f->saveConf($this->request);
          }
+         
+      }elseif ($this->request['type'] == 'sqlResult') {
+         $conn = new SqlCatalogDb($this->request['selectDb'], $this->srv, $this->usr,$this->pwd);
+         $arrResult = $conn->getTblResult($this->request['strSql']);
+         ob_clean();
+         echo json_encode($arrResult);
+
+      }elseif ($this->request['type'] == 'explainSql') {
+         $conn = new SqlCatalogDb($this->request['selectDb'], $this->srv, $this->usr,$this->pwd);
+         $arrResult = $conn->getExplainTables($this->request['strSql']);
+         ob_clean();
+         echo json_encode($arrResult);
       }
    }
    
@@ -179,6 +203,5 @@ class SqlCatalog {
       return array($arrGrp, $arrItem);
    }
 }
-
 ?>
 

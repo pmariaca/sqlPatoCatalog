@@ -1,96 +1,117 @@
 $(document).ready(function() {
    // action botons
    $("#findSrv").click(function() {
+      var data = $("#form_nav").serializeArray();
+      var id = this.id;
       jQuery.ajax({
          url : "includes/SqlCatalog.inc.php?go=db&type=findSrv",
          type: "POST",
-         data: $("#form_nav").serializeArray(),
+         //dataType: "json", // na-nais
+         data: data,
          beforeSend: function() {
-            $('#loading').show();
-            $('#findSrv').button('loading'); 
+            startLoad(id); 
+            hideMsgs();
             $('#selectDb option').remove();
             $('#divSelectDb').hide();
-            $('#divMsgDb').hide();
          },
          success: function(data) {
-            if(jQuery.type(data) === "string" && data.substring(0,1)!='['){
-               $('#divMsgDb').empty();
-               if($.trim(data) != 'null'){
-                  $('#divMsgDb').append(data);
-                  $('#divMsgDb').show();
-               }
-               
-               $('#loading').hide();
-               $('#findSrv').button('reset');
-               $('#findSrv').dequeue();
-               return;
-            }
+            var error = msgError(id, data);
+            if(error){stopLoad(id);return;}        
             var obj = data;
-            if (!$.isPlainObject(data)) {obj = JSON.parse(data);}                      
+            if (!$.isPlainObject(data)) {obj = JSON.parse(data);}   
             jQuery.each(obj, function(k, v) {
                $('#selectDb').append('<option>'+v+'</option>');
             }); 
-            $('#loading').hide();
-            $('#findSrv').button('reset');
-            $('#findSrv').dequeue();
             $('#divSelectDb').show();
-         },
-      });
-   });
-//+++++++++++++++++++++++++++++++++++++++++++++++++++ menu2_div 
-   $("#sendSql").click(function() {
-      jQuery.ajax({
-         url: "includes/SqlResult.php?go=db&type=sqlResult",
-         type: "POST",
-         data: $("#form_content,#form_nav").serializeArray(),
-         beforeSend: function() {
-            $('#loading').show();
-            $('#sendSql').button('loading');   
-            $('#resultIframe').contents().find('html').html('');
-         },
-         success: function(data) {    
-           /* if(jQuery.type(data) === "string" && data.substring(0,4)!='<!DOC'){
-               console.log('-----------'+data);
-                  $('#divMsgDb2').empty();
-                  $('#divMsgDb2').append(data);
-                  $('#divMsgDb2').show();
-                  $('#sendSql').button('reset');
-            $('#sendSql').dequeue();
-            $('#loading').hide();
-               return;
-            }*/
-            $('#resultIframe').contents().find('html').html(data);
-            $('#sendSql').button('reset');
-            $('#sendSql').dequeue();
-            $('#loading').hide();
-         },
-      });
-   });
-
-    $("#explainSql").click(function() {
-      jQuery.ajax({
-       url: "includes/SqlResult.php?go=db&type=explainSql",
-       type: "POST",
-       data : $("#form_content,#form_nav").serializeArray(),
-       beforeSend: function() {
-            $('#loading').show();
-            $('#explainSql').button('loading');   
-            $('#resultIframe').contents().find('html').html('');
-       },
-       success:function(data){
-            $('#loading').hide();
-            $('#explainSql').button('reset');
-            $('#explainSql').dequeue();
-            $('#resultIframe').contents().find('html').html(data);
-       },
-       });
+            stopLoad(id);
+         },});
    });
    
+//+++++++++++++++++++++++++++++++++++++++++++++++++++ menu2_div   
+   
+   $("#sendSql").click(function() {
+      if($.trim($("#strSql").val())==""){return;}
+      if($("#selectDb").val()==null){return;}
+      var id = this.id;
+      jQuery.ajax({
+         url: "includes/SqlCatalog.inc.php?go=db&type=sqlResult",
+         type: "POST",
+         dataType: "json",
+         data: $("#form_content,#form_nav").serializeArray(),
+         beforeSend: function() {
+            startLoad(id);
+            hideMsgs();
+         },
+         success: function(json) {             
+            stopLoad(id);
+            $('#divResult').html( '<table class="table table-striped table-hover" id="tblResult"></table>' );
+            var error = msgError(id, json);
+            if(error){
+                $('#divResultError').html(json['error'] );
+                $('#divResultError').show();
+                return;
+            }
+            var header = [];
+            jQuery.each(json['info'], function(k, v) {
+               header[k] = {"title":v};
+            });
+            $('#divResultInfo').html(json['numRows'] );
+            $('#divResultInfo').show();
+            $('#tblResult').dataTable( {
+                    'data': json['row'],
+                    'columns':header,
+                    'scrollX': true,
+                    'iDisplayLength': 15,
+                    'aLengthMenu': [[15, 25, 50, 100, -1], [15, 25, 50, 100, 'All']]
+                } );    
+         }
+      });
+   });
+    
+    $("#explainSql").click(function() {
+      if($.trim($("#strSql").val())==""){return;}
+      if($("#selectDb").val()==null){return;}
+      var id = this.id;
+      jQuery.ajax({
+       url: "includes/SqlCatalog.inc.php?go=db&type=explainSql",
+       type: "POST",
+       dataType: "json",
+       data: $("#form_content,#form_nav").serializeArray(),
+       beforeSend: function() {
+            startLoad(id);
+            hideMsgs();
+       },
+       success: function (json) {
+            $('#divExplain').html('<table class="table table-striped table-hover" id="tblExplain"></table>');
+            stopLoad(id);
+            var error = msgError(id, json);
+            if (error) {
+                $('#divExplainError').html(json['error']);
+                $('#divExplainError').show();
+                return;
+            }
+            var header = [];
+            jQuery.each(json['info'], function (k, v) {
+                header[k] = {'title': v};
+            });
+            $('#tblExplain').dataTable({
+                'data': json['row'],
+                'columns': header,
+                'scrollX': true,
+                'searching': false,
+                'paging': false,
+                'ordering': false,
+                'info': false
+            });     
+          }
+      });
+   });
+           
    $("#showTbl").click(function() {
    });
    
    $("#addSql").on('click',function() {    
-      if($("#strSql").val()==""){
+      if($.trim($("#strSql").val())==""){
          bootbox.alert(msg1);
          return;
       }
@@ -171,7 +192,9 @@ $(document).ready(function() {
           if(msg.length>1){
              bootbox.alert(msg);
           }else{
+             if(load==2){
              window.location.reload();
+            }
           }
           if(load==1){
             $("#menu_div").load(location.href+" #menu_div>*","");
@@ -221,7 +244,38 @@ $('#mmodal').on('show.bs.modal', function () {
       $('#pwd').hide();
       $('#findSrv').trigger('click');
    }
+   
+  function msgError(id, json){
+//console.log( $.type(json) );console.log(json);
+      if(jQuery.type(json) === "string" && json.substring(0,1)=='['){return false;}
+      if(jQuery.type(json) === "string" ){json = JSON.parse('{"error":["'+json+'"]}');}
+      if(json==null || $.trim(json['error']) != '' ){
+        $('#divMsgDb').empty();
+        $('#divMsgDb').append(json['error']);
+        $('#divMsgDb').show();
+        return true;
+      }
+      return false;
+   }
+   function startLoad(id){
+      $('#loading').show();
+      $('#'+id).button('loading'); 
+   }
+   function stopLoad(id){
+      $('#loading').hide();
+      $('#'+id).button('reset');
+      $('#'+id).dequeue();
+   }
+   function hideMsgs(){
+      $('#divMsgDb').hide();
+      $('#divResultInfo').hide();
+      $('#divResultError').hide();
+      $('#divExplainError').hide();
+   }
+   
+
  });
+
 //+++++++++++++++++++++++++++++++++++++++++++++++++++   
 function MM_findObj(n, d) {
   	var p,i,x;

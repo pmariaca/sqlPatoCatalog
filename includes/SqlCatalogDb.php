@@ -9,15 +9,18 @@ include_once ("ManageFiles.php");
 class SqlCatalogDb {
 
    private $arrNameHost = array();
-   private $Db;
+   private $db;
    private $srv;
    private $user;
    private $pass;
    private $mysqli;
-   private $error = "";
 
    /**
-    * define servers
+    * in constructor are define if data connection are in config file or given by the user
+    * @param string $db - database name
+    * @param string $srv - host name
+    * @param string $user - user name
+    * @param string $pass - user password
     */
    function __construct($db="", $srv = "", $user = "", $pass = "")
    {
@@ -29,17 +32,19 @@ class SqlCatalogDb {
       $arrHost = $f->findHosts();
 
       if($flg==0){
+         // from user
          $arrNameHost[] = "";
          $this->srv = $srv;
          $this->user = $user;
          $this->pass = $pass;
       }elseif($flg==3){
+         // from config file
          $arrNameHost[] = $arrHost[0]['name']; // ETIQUETA
          $this->srv = $arrHost[0]['srv'];
          $this->user = $arrHost[0]['user'];
          $this->pass = $arrHost[0]['pass'];
       }else{
-         // no todos
+         // some not all from config file
          $arrNameHost[] = "";
          $this->srv = $srv;
          $this->user = $user;
@@ -55,11 +60,17 @@ class SqlCatalogDb {
          }
          
       }
-      $this->Db = $db;
+      $this->db = $db;
       $this->arrNameHost = $arrNameHost;
    }
 
-   
+   /**
+    * verify connection with user data
+    * @param string $srv
+    * @param string $user
+    * @param string $pass
+    * @return boolean
+    */
    public function testConnection($srv, $user, $pass)
    {
       $this->srv = $srv;
@@ -79,19 +90,19 @@ class SqlCatalogDb {
    {
       return $this->arrNameHost;
    }
-
+   
    /**
     * create connection
+    * @return boolean
     */
    private function connect()
    {
       if($this->srv==""){return false;}      
-      $mysqli = new mysqli($this->srv, $this->user, $this->pass, $this->Db);
+      $mysqli = new mysqli($this->srv, $this->user, $this->pass, $this->db);
       // verificar coneccion 
       if(mysqli_connect_errno()){
          return false;
       }
-      //printf("Host info: %s\n", $mysqli->srv_info);
       $this->mysqli = $mysqli;
       return true;
    }
@@ -105,23 +116,23 @@ class SqlCatalogDb {
    }
 
    /**
-    * conect to database
-    * @param string $sql
-    * @return array
+    * conect to selected database
+    * @param string $sql - query string
+    * @return array - query result
     */
    private function mySql($sql)
    {
       $r = $this->connect();
       if(!$r){return;}
-      $this->mysqli->select_db($this->Db);
+      $this->mysqli->select_db($this->db);
       $result = $this->findQuery($sql);
       $this->close();
       return $result;
    }
    
    /**
-    * 
-    * @param type $sql
+    * convert an array the query result
+    * @param string $sql - query string
     * @return array
     */
    private function findQuery($sql)
@@ -136,39 +147,46 @@ class SqlCatalogDb {
       $rows = array();
       $numcols = array();
       $numRows = "";
+      //$this->mysqli->query('set profiling=1');
       if($result = $this->mysqli->query($sql)){
          if($result === true){
-            echo "<pre>";
-            print_r($this->mysqli->info);
-            echo "</pre>";
-            return;
-         }
-         $numRows = "numRows: " . $result->num_rows;
-         $numcols = mysqli_field_count($this->mysqli);
-         while($finfo = mysqli_fetch_field($result)){
-            $arrInfo[]['header'] = $finfo->name;
-         }
-
-         $k = -1;
-         while($row = $result->fetch_row()){
-            $k++;
-            for($i = 0; $i < $numcols; $i++){
-               $rows[$k][] = $row[$i];
+            if(!is_null($this->mysqli->info)){
+               $arrInfo[] = $this->mysqli->info;
+            }else{
+               $arrInfo[] = "<pre>".var_export($result, true)."</pre>";
             }
-         }
-         $result->close();
-      }
+         }else{
+            $numRows = "numRows: " . $result->num_rows;
+            $numcols = mysqli_field_count($this->mysqli);
+            while($finfo = mysqli_fetch_field($result)){
+               $arrInfo[] = $finfo->name;
+            }
 
-      $this->error = mysqli_error($this->mysqli);
-      return array('info' => $arrInfo, 'row' => $rows,
+            $k = -1;
+            while($row = $result->fetch_row()){
+               $k++;
+               for($i = 0; $i < $numcols; $i++){
+                  $rows[$k][] = utf8_encode($row[$i]);
+               }
+            }
+//echo "<pre>";var_dump($result);echo "</pre>"; 
+            $result->close();
+         }
+      }
+      //$this->mysqli->query('set profiling=0');
+    
+      $error = mysqli_error($this->mysqli);
+      return array(
+          'info' => $arrInfo, 
+          'row' => $rows,
           'numcols' => $numcols,
           'numRows' => $numRows,
-          'error' => $this->error);
+          'error' => $error);
    }
    
    /**
     * list of databases
-    * @return arrray
+    * @return arrray - list of databases and host name
     */
    public function findDB()
    {
@@ -186,8 +204,8 @@ class SqlCatalogDb {
    
    /**
     * explain from sql statment
-    * @param string $sql
-    * @return array
+    * @param string $sql - query string
+    * @return array - query result
     */
    public function getExplainTables($sql)
    {
@@ -196,8 +214,8 @@ class SqlCatalogDb {
 
    /**
     * 
-    * @param string $sql
-    * @return type
+    * @param string $sql - query string
+    * @return array - query result
     */
    public function getShwoTables($sql)
    {
@@ -205,38 +223,13 @@ class SqlCatalogDb {
    }
 
    /**
-    * convert an array the query result
+    * 
     * @param string $sql
-    * @return array
+    * @return array - query result
     */
    public function getTblResult($sql)
    {
-      $result = $this->mySql($sql);     
-      $arrResult = array();
-      $arrResult[0] = array();
-      $arrResult[1] = array();
-      $arrMessage = array();
-      $arrMessage['error'] = "";
-      $arrMessage['numRows'] = "";
-      //echo "<pre>";print_r($result);echo "</pre>";
-      if(is_array($result)){
-         if(array_key_exists('error', $result)){
-            $arrMessage['error'] = $result['error'];
-         }
-         foreach($result['info'] as $finfo){
-            $arrResult[0][] = $finfo['header'];
-         }
-         $k = -1;
-
-         $r = 0;
-         foreach($result['row'] as $k => $row){
-            foreach($row as $kk => $roww){
-               $arrResult[1][$r][] = $roww;
-            }
-            $r++;
-         }
-      }
-      return array($arrResult, $result);
+      return $this->mySql($sql);
    }
 }
 ?>

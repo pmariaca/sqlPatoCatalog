@@ -39,7 +39,7 @@ class SqlCatalogXml {
    }
 
    /**
-    * create new catalog, first time
+    * create new catalog if non exist
     */
    public function newCatalog()
    {
@@ -48,7 +48,7 @@ class SqlCatalogXml {
       $xml->appendChild($catalog);
 
       $arrGrp[0] = array('id' => 1, 'name' => 'UPDATE', 'strTitle' => "update myTable1 ", 'strSql' => "update table set name=\'3\' where id=\'1\' ");
-      $arrGrp[1] = array('id' => 2, 'name' => 'SELECT', 'strTitle' => "select myTable1", 'strSql' => "SELECT \'a\' REGEXP \'^[a-d]\' ");
+      $arrGrp[1] = array('id' => 2, 'name' => 'SELECT', 'strTitle' => "select myTable1", 'strSql' => "SELECT \'a\' REGEXP \'^[a-d]\' # try this ");
       foreach($arrGrp as $grp){
          $item = $xml->createElement("item");
          $title = $xml->createElement("title");
@@ -105,7 +105,7 @@ class SqlCatalogXml {
 
    /**
     * add new item
-    * @param integer $idGroup
+    * @param integer $idGroup - group id
     */
    public function addItem($idGroup = 0)
    {
@@ -152,7 +152,7 @@ class SqlCatalogXml {
       
    /**
     * delete groups
-    * @param array $arrGroup
+    * @param array $arrGroup - array of groups id
     * @return boolean
     */
    public function deleteGroup($arrGroup)
@@ -206,8 +206,7 @@ class SqlCatalogXml {
 
    /**
     * read xml file
-    * 
-    * @return string
+    * @return array - catalog's item
     */
    public function readCatalog()
    {
@@ -243,7 +242,7 @@ class SqlCatalogXml {
    }
    
    /**
-    * reorder attribute id in catalog
+    * reorder attribute id's in catalog
     */
    private function reorderGroup()
    {

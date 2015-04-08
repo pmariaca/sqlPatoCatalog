@@ -1,5 +1,6 @@
 <?php
 include_once ("CustomError.php");
+
 /**
  * Manage files: read and write files
  * @author axolote14
@@ -9,6 +10,9 @@ class ManageFiles {
    private $file_name = "configHost.ini";
    private $dirFile = "";
    
+   /**
+    * define the path
+    */
    function __construct()
    {
       $this->dirFile = PATH_SQLCATALOG.DIRECTORY_SEPARATOR."config".DIRECTORY_SEPARATOR.$this->file_name;
@@ -91,7 +95,7 @@ class ManageFiles {
    }
    
    /**
-    * 
+    * save user data for mysql
     * @param array $request
     */
    public function saveConf($request)
@@ -131,6 +135,11 @@ class ManageFiles {
       file_put_contents($this->dirFile, $pass."\n", FILE_APPEND);
    }
    
+   /**
+    * encrypt password
+    * @param string $string
+    * @return string
+    */
    private function encrypt($string) {
       $key="marijuana!";
       $result = '';
@@ -143,6 +152,11 @@ class ManageFiles {
       return base64_encode($result);
    }
    
+   /**
+    * decrypt password
+    * @param string $string
+    * @return string
+    */
    private function decrypt($string) {
       $key="marijuana!";
       $result = '';
