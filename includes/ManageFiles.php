@@ -7,33 +7,50 @@ include_once ("CustomError.php");
  */
 class ManageFiles {
    
-   private $file_name = "configHost.ini";
-   private $dirFile = "";
+   private $ini_host = "configHost.ini";
+   private $ini_view = "configView.ini";
+   private $file_host = "";
+   private $file_view = "";
    
    /**
     * define the path
     */
    function __construct()
    {
-      $this->dirFile = PATH_SQLCATALOG.DIRECTORY_SEPARATOR."config".DIRECTORY_SEPARATOR.$this->file_name;
+      $this->file_host = PATH_SQLCATALOG.DIRECTORY_SEPARATOR."config".DIRECTORY_SEPARATOR.$this->ini_host;
+      $this->file_view = PATH_SQLCATALOG.DIRECTORY_SEPARATOR."config".DIRECTORY_SEPARATOR.$this->ini_view;
       
-      $error = new customError(array($this->dirFile));
+      $error = new customError(array($this->file_host));
       set_error_handler(array($error, 'errorHandler'));
       
+   }
+   
+   /**
+    * 
+    * @param type $type
+    * @return type
+    */
+   public function findConf($type=0)
+   {
+      if($type==0){
+         return $this->findConfHost();
+      }else{
+         return $this->findConfView();
+      }
    }
 
    /**
     * get data from config file
     * @return integer
     */
-   public function findConf()
+   private function findConfHost()
    {
       $f = 0;
       $flg = 0;
       $srv = "";
-      if($gestor = fopen($this->dirFile, 'r')){
+      if($file = fopen($this->file_host, 'r')){
          $n = -1;
-         while(($line = fgets($gestor, 4096)) !== false){
+         while(($line = fgets($file, 4096)) !== false){
             if(substr(trim($line), 0, 1) == ';' || trim($line)==""){
                continue;
             }
@@ -55,7 +72,7 @@ class ManageFiles {
             }
          }
       }
-      fclose($gestor);
+      fclose($file);
       return $flg;
    } 
    
@@ -63,13 +80,13 @@ class ManageFiles {
     * list of data server
     * @return array
     */
-   public function findHosts()
+   public function findHost()
    {
       $f = 0;
       $arrHosts = array();
-      if($gestor = fopen($this->dirFile, 'r')){
+      if($file = fopen($this->file_host, 'r')){
          $n = -1;
-         while(($line = fgets($gestor, 4096)) !== false){
+         while(($line = fgets($file, 4096)) !== false){
             if(substr(trim($line), 0, 1) == ';' || trim($line)==""){
                continue;
             }
@@ -90,15 +107,54 @@ class ManageFiles {
                   $arrHosts[$n][trim($arr[0])] = trim($arr[1]);
             }}}
       }
-      fclose($gestor);
+      fclose($file);
       return $arrHosts;
+   }
+   
+   /**
+    * list of data server
+    * @return array
+    */
+   public function findConfView()
+   {
+      $f = 0;
+      $arrView = array();
+      if($file = fopen($this->file_view, 'r')){
+         while(($line = fgets($file, 4096)) !== false){
+            if(substr(trim($line), 0, 1) == ';' || trim($line)==""){
+               continue;
+            }
+            if(substr(trim($line), 0, 6) == '[view]'){
+               $f = 1;
+               continue;
+            }
+            if(substr(trim($line), 0, 6) == '[srv]'){
+               $f = 2;
+               continue;
+            }
+            $arr = explode(':', $line);
+            if($f==1){
+               $arrView[trim($arr[0])] = trim($arr[1]);
+            }}
+      }
+      fclose($file);
+      return $arrView;
+   }
+   
+   public function saveConf($request, $type=0)
+   {
+      if($type==0){
+         $this->saveConfHost($request);
+      }else{
+         $this->saveConfView($request);
+      }
    }
    
    /**
     * save user data for mysql
     * @param array $request
     */
-   public function saveConf($request)
+   private function saveConfHost($request)
    {
       $f=0;$f1=0;$s="";$u="";$p="";$itemSrv="";$itemUsr="";$itemPass="";
       if(isset($request['itemSrv']) && trim($request['itemSrv'])!=""){
@@ -119,20 +175,40 @@ class ManageFiles {
       if($f1==3){$f=3;}
       if($f1<3){$f=1;}
       if($f1==0){$f=0;}
-      $xcnf = "[cnf]";
-      $cnf = "f:".$f.":".$s.":".$u.":".$p;
-      $xsrv = "[srv]";
-      $name = "name:1";
-      $srv = "srv:".$itemSrv;
-      $user = "user:".$itemUsr;
-      $pass = "pass:".$this->encrypt($itemPass);
-      file_put_contents($this->dirFile, $xcnf."\n");
-      file_put_contents($this->dirFile, $cnf."\n", FILE_APPEND);
-      file_put_contents($this->dirFile, $xsrv."\n", FILE_APPEND);
-      file_put_contents($this->dirFile, $name."\n", FILE_APPEND);
-      file_put_contents($this->dirFile, $srv."\n", FILE_APPEND);
-      file_put_contents($this->dirFile, $user."\n", FILE_APPEND);
-      file_put_contents($this->dirFile, $pass."\n", FILE_APPEND);
+      $arr[] = "[cnf]";
+      $arr[] = "f:".$f.":".$s.":".$u.":".$p;
+      $arr[] = "[srv]";
+      $arr[] = "name:1";
+      $arr[] = "srv:".$itemSrv;
+      $arr[] = "user:".$itemUsr;
+      $arr[] = "pass:".$this->encrypt($itemPass);
+      $this->saveFile($this->file_host, $arr);
+   }
+   
+   /**
+    * save user data for mysql
+    * @param array $request
+    */
+   private function saveConfView($request)
+   {
+      if(isset($request['less']) && trim($request['less'])!=""){
+         $less = $request['less'];
+      }
+      $arr[] = "[view]";
+      $arr[] = "view:1";
+      $arr[] = "item:".$less;
+      $this->saveFile($this->file_view, $arr);
+   }
+   
+   private function saveFile($file, $arr)
+   {
+      foreach($arr as $k=>$val){
+         if($k==0){
+            file_put_contents($file, $val."\n");
+         }else{
+            file_put_contents($file, $val."\n", FILE_APPEND);
+         }
+      }
    }
    
    /**

@@ -1,9 +1,6 @@
 <?php
-include_once ("CustomError.php");
-include_once ("ManageFiles.php");
-
 /**
- * SqlCatalogDb: connect and search in database
+ * CatalogDb: connect and search in database
  * @author axolote14
  */
 class SqlCatalogDb {
@@ -29,7 +26,7 @@ class SqlCatalogDb {
       
       $f = new ManageFiles();
       $flg = $f->findConf();
-      $arrHost = $f->findHosts();
+      $arrHost = $f->findHost();
 
       if($flg==0){
          // from user
@@ -217,7 +214,7 @@ class SqlCatalogDb {
     * @param string $sql - query string
     * @return array - query result
     */
-   public function getShwoTables($sql)
+   public function getShwoTables()
    {
       return $this->getTblResult("show tables");
    }
@@ -232,4 +229,3 @@ class SqlCatalogDb {
       return $this->mySql($sql);
    }
 }
-?>

@@ -34,12 +34,8 @@ class CustomError {
          case E_WARNING:
             $fnd = strpos ($errfile, "SqlCatalogDb.php");
             if($fnd===false){
-               //echo '<span class="label label-warning">'.DIR_NOT_WRITABLE.": ".$this->arrParams[0].'</span>';
-               //echo '<div class="alert alert-warning" role="alert">'.DIR_NOT_WRITABLE.": ".$this->arrParams[0].'</div>';
-               echo $this->arrParams[0];
-               
+               echo DIR_NOT_WRITABLE.": ".$this->arrParams[0];
             }else{
-               //echo '<div class="alert alert-warning" role="alert">'.$errstr.'</div>';
                echo $errstr;
             }
             

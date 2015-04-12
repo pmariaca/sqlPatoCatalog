@@ -1,39 +1,27 @@
-@import url('../dist/css/bootstrap.min.css');  /* Bootstrap CSS */
-/* watchDarkly watchCosmo  watchSlate watchSuperHero watchFlatly */
-@import url('../dist/less/watchDarkly/bootstrap.min.css');
-@import url('../dist/less/watchDarkly/variables.less');
-/*@import url('../dist/themes/bootable/css/styles.css');*/
-@import url('../dist/DataTables/plug-ins/integration/bootstrap/3/dataTables.bootstrap.css');  
-      
 @media screen and (min-width: 768px) {
-	#mmodal .modal-dialog  {width:500px;}
+	#mmodal .modal-dialog  {width:550px;}
 }
 #main_div{
    display:block;
    position: relative;
    float:left;
-   /*left:200px;*/
    left: 12%;
-   /*width:65%;*/
-   width:74%;
+   width:73%;
    height:800px;
-   margin: 15px;
+   margin-left:15px;
 }
 #menu_div{ 
    position: absolute;
     float:left;
-    /*width:200px;*/
     width:12%;
     padding-left: 2px;
-    padding-top: 2px;
     margin:0px;
 }
 #menu2_div{ 
     position: relative;
     float:right;
-    /*width:155px;*/
-    width: 12%;
-    padding: 2px 12px 0px 12px;
+    width: 13%;
+    padding-right: 2px;
     margin: 0px;
 }
 /*------------------------- nav div --------------------------------------*/ 
@@ -59,59 +47,58 @@
    border: 1px solid transparent;
 }
 /*------------------------- main div --------------------------------------*/ 
-#strSql{
+#divSql, #strSql{
    width:100%;
    min-width:200px;
    resize:vertical;
-   position: relative;
+   position: relative;  
+} 
+#divSql{
    margin-top: 15px;
    margin-bottom: 15px;
+} 
+#divToolBar{
+   text-align: right;
+   margin-bottom: 5px;
+   margin-right: 15px;
 }  
-#divSelectDb{ 
-    width: 30%;
+#selectDb {
+  width: 30% !important;
 }
 /*------------------------- result ---------------------------------*/ 
-#resultIframe {
-    border: 0;
-    width: 95%;
-    height:400px;
-}
-
 .table{font-size:14px;}
 .table tr, .table td {
    padding: 2px !important;
    margin: 0px !important;
 }
 /*------------------------- menu div --------------------------------------*/ 
-#accordionN .panel-heading{ 
+#accordionN .panel-heading { 
     padding: 5px 5px 5px 5px;
 }
-#accordionN .panel-body, #accordionN .list-group, #accordionN .panel-body input, #accordionN .panel-heading input  {
+#accordionN .panel-body, #accordionN .list-group, #accordionN .panel-body input, #accordionN .panel-heading input,
+#divShow .list-group, #divShow .list-group input {
    padding: 0px !important;
    margin: 0px !important;
 }
-#accordionN .list-group-item  {
+#accordionN .list-group-item, #divShow .list-group-item, #divShow .option-name {
    padding: 0px !important;
    margin: 0px !important;
    border: 1px solid transparent;
 }
  
 /*------------------------- menu2 div -------------------------------------*/ 
-#menu2_div #sendSql{
-   margin-top: 15px;
-   margin-bottom: 15px;
+#explainSql, #sendSql{
+   margin-top: 0px;
+   margin-bottom: 10px;
+   margin-right: 55px;
 }
-#menu2_div #bigger, #menu2_div #smoller{
-   margin-right: 5px;
-   margin-bottom: 15px;
+#btnAddSql, #addSql{
+   margin-bottom: 10px;
 }
 #accordionA .panel-body {
    padding: 5px;
 }
-#daccordionA .list-group radio {
-   margin: 0px ;
-}
-#accordionA .list-group  {
+#accordionA .list-group {
    margin: 0px ;
 }
 #accordionA .list-group-item {
@@ -119,10 +106,10 @@
    padding-bottom: 5px;
    border: 1px solid transparent;
 }
-#accordionA .panel-body, #accordionA .list-group, #accordionA .panel-body input, #accordionA .panel-heading input  {
-   /*padding: 0px !important;*/
-   /*margin: 0px !important;*/
+#divShow .panel-heading {
+   padding-top: 0px;
+   padding-bottom: 0px;
 }
-#accordionA #div_add{
-   text-align: right;
+#divShow .panel-body {
+   padding: 10px 15px 8px 15px;
 }

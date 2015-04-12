@@ -4,7 +4,7 @@ switch ($lang){
    case "es":
       define('ACCEPT','Guardar');
       define('CANCEL','Cerrar');
-      define('SAVE','Guardar sql');
+      define('SAVE','Guardar sql en:');
       define('FIND','Buscar SQL!!!');
       define('NEW_GROUP','Nuevo grupo');
       define('MANEGE_GROUP','Personaliza tu catálogo');
@@ -14,6 +14,7 @@ switch ($lang){
       define('SRV_GROUP_2','Guardar login');
       define('SRV_GROUP_3','Guardar password');
       define('SRV_GROUP_4','Borrar configuracion actual');
+      define('CHANGE_VIEW','Cambiar vista');
       define('SRV_GROUP_INFO','Los datos seleccionados se guardarán en un archivo (configHost.ini), de otra manera siempre se requeriran.');
       define('SRV_GROUP_INFO2','Por ahora, solo los datos de una ip se puede guardar');
       define('MSG_1','escribir busqueda');
@@ -26,7 +27,7 @@ switch ($lang){
    default:
       define('ACCEPT','Save changes');
       define('CANCEL','Close');
-      define('SAVE','Save sql');
+      define('SAVE','Save sql in:');
       define('FIND','Find SQL!!!');
       define('NEW_GROUP','New group');
       define('MANEGE_GROUP','Manage your catalog');
@@ -36,6 +37,7 @@ switch ($lang){
       define('SRV_GROUP_2','Save login');
       define('SRV_GROUP_3','Save password');
       define('SRV_GROUP_4','Delete all actual data from conf');
+      define('CHANGE_VIEW','Change view');
       define('SRV_GROUP_INFO','The selected data will be saved in a file (configHost.ini), otherwise always will be asked for.');
       define('SRV_GROUP_INFO2','For now, just the content of one ip can be saved');
       define('MSG_1','put some query');

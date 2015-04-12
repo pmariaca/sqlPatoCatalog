@@ -9,7 +9,7 @@
   <group id="2" name="SELECT">
     <item>
       <title>select myTable1</title>
-      <sql>SELECT \'a\' REGEXP \'^[a-d]\' </sql>
+      <sql>SELECT \'a\' REGEXP \'^[a-d]\' # try this </sql>
     </item>
   </group>
 </catalog>

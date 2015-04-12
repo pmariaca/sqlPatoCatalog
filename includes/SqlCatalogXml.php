@@ -1,8 +1,6 @@
 <?php
-include_once ("CustomError.php");
-
 /**
- * SqlCatalogXml: manipulate xml file
+ * CatalogXml: manipulate xml file
  * @author axolote14
  */
 class SqlCatalogXml {
