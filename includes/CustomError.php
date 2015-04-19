@@ -34,9 +34,9 @@ class CustomError {
          case E_WARNING:
             $fnd = strpos ($errfile, "SqlCatalogDb.php");
             if($fnd===false){
-               echo DIR_NOT_WRITABLE.": ".$this->arrParams[0];
+               echo json_encode(array('error'=>DIR_NOT_WRITABLE.": ".$this->arrParams[0]));
             }else{
-               echo $errstr;
+               echo json_encode(array('error'=>$errstr));
             }
             
          case E_USER_ERROR:   // 256

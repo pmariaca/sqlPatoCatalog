@@ -8,6 +8,9 @@ $themeItem = $arrView["item"];
 if(count($arrWatch)==$themeItem){
    $themeView = 2;
 }
+
+//$themeView = 0;
+//$themeItem = 0;
 $arrWatch = array_merge($arrWatch, $arrTheme);
 $strHead =  "<link rel='stylesheet' href='dist/css/bootstrap.min.css' type='text/css'>";
 if($themeView==1){
@@ -18,8 +21,9 @@ if($themeView==2){
    $strHead .=  "<link rel='stylesheet' href='dist/themes/bootable/css/styles.css' type='text/css'>";
 }
 $strHead .=  "<link rel='stylesheet' href='dist/DataTables/plug-ins/integration/bootstrap/3/dataTables.bootstrap.css' type='text/css'>";
-$strHead .=  "<link rel='stylesheet' href='dist/DataTables/extensions/TableTools/css/dataTables.tableTools.min.css' type='text/css'>";
+//$strHead .=  "<link rel='stylesheet' href='dist/DataTables/extensions/TableTools/css/dataTables.tableTools.css' type='text/css'>";
 $strHead .=  "<link rel='stylesheet' href='css/sqlCatalog.css' type='text/css'>";
+$strHead .=  "<link rel='stylesheet' href='css/sqlResult.css' type='text/css'>";
 
 $strHead .=  "<script type='text/javascript' src='js/jquery.js'></script>";
 $strHead .=  "<script type='text/javascript' src='dist/selectr/dist/selectr.js'></script>";
@@ -31,5 +35,7 @@ $strHead .=  "<script type='text/javascript' src='dist/bootbox/bootbox.min.js'><
 $strHead .=  "<script type='text/javascript' src='dist/DataTables/media/js/jquery.dataTables.min.js'></script>";
 $strHead .=  "<script type='text/javascript' src='dist/DataTables/extensions/TableTools/js/dataTables.tableTools.js'></script>";
 $strHead .=  "<script type='text/javascript' src='dist/DataTables/plug-ins/integration/bootstrap/3/dataTables.bootstrap.min.js'></script>";
+
 $strHead .=  "<script type='text/javascript' src='js/sqlCatalog.js'></script>";
+$strHead .=  "<script type='text/javascript' src='js/sqlResult.js'></script>";
 $strHead .= "<script>var msg1 = '".MSG_1."'; var msg2 = '".MSG_2."';</script>";

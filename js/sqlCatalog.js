@@ -1,118 +1,80 @@
 $(document).ready(function() {
+   var urlCatalog = "includes/SqlCatalog.inc.php?";
+   MoreTabs.init('resultShow');
+   
    // action botons
    $("#findSrv").click(function() {
       var data = $("#form_nav").serializeArray();
       var id = this.id;
       jQuery.ajax({
-         url: "includes/SqlCatalog.inc.php?go=db&type=findSrv",
+         url: urlCatalog+"go=db&type=findSrv",
          type: "POST",
-         //dataType: "json", // na-nais
+         dataType: "json",
          data: data,
          beforeSend: function() {
             startLoad(id);
-            hideMsgs();
+            hideMsgs(1);
             $('#selectDb option').remove();
-            $('#selectDb').hide();
+            $('.divSelectDb').hide();
          },
-         success: function(data) {
-            var error = msgError(id, data);
-            if(error){
-               stopLoad(id);
-               return;
-            }
-            var obj = data;
-            if(!$.isPlainObject(data)){obj = JSON.parse(data);}
-            jQuery.each(obj, function(k, v) {
+         success: function(json) {
+            stopLoad(id);
+            if(msgError(id, json)){return;}
+            jQuery.each(json, function(k, v) {
                $('#selectDb').append('<option>' + v + '</option>');
             });
-            $('#selectDb').show();
+            $('.divSelectDb').show();
             $("#selectDb").trigger('change');
-            stopLoad(id);
          }, });
    });
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++ menu2_div   
 
    $("#sendSql").click(function() {
-      if($.trim($("#strSql").val()) == "" || $("#selectDb").val() == null){return;}
+      if($.trim(MoreTabs.getTabActive('oTextarea').val()) == "" || $("#selectDb").val() == null){return;}
+      var srzArray = $("#form_content .selectDb,#form_nav").serializeArray();
+      srzArray[srzArray.length] = MoreTabs.getTabActive('oStrSql');
       var id = this.id;
       jQuery.ajax({
-         url: "includes/SqlCatalog.inc.php?go=db&type=sqlResult",
+         url: urlCatalog+"go=db&type=sqlResult",
          type: "POST",
          dataType: "json",
-         data: $("#form_content,#form_nav").serializeArray(),
+         data: srzArray,
          beforeSend: function() {
             startLoad(id);
-            hideMsgs();
+            hideMsgs(MoreTabs.getTabActive('oResultError'));
          },
          success: function(json) {
-            stopLoad(id);
-            $('#divResult').html('<table class="table table-striped table-hover" id="tblResult"></table>');
-            var error = msgError(id, json);
-            if(error){
-               $('#divResultError').html(json['error']);
-               $('#divResultError').show();
-               return;
-            }
-            var header = [];
-            jQuery.each(json['info'], function(k, v) {
-               header[k] = {"title": v};
-            });
-            $('#divResultInfo').html(json['numRows']);
-            $('#divResultInfo').show();
-            $('#tblResult').dataTable({
-               /*    "dom": 'T<"clear">lfrtip',
-                "tableTools": {
-                "sSwfPath": "copy_csv_xls_pdf.swf",
-                "aButtons": [
-                "copy",
-                "print",
-                {
-                "sExtends":    "collection",
-                "sButtonText": "Save",
-                "aButtons":    [ "csv", "xls", "pdf" ]
-                }
-                ]
-                },*/
-               'data': json['row'],
-               'columns': header,
-               'scrollX': true,
-               'ordering': false,
-               'iDisplayLength': 15,
-               'aLengthMenu': [[5, 10, 15, 25, 50, 100, -1], [5, 10, 15, 25, 50, 100, 'All']]
-            });
-            //$( ".dataTables_paginate ul" ).addClass( "pagination-sm" );
+            stopLoad(id);      
+            $('#'+MoreTabs.getTabActive('sIdTab')+' .divResult').html('<table class="table table-striped table-hover" id="' + MoreTabs.getTabActive('sIdTab') + '_tblResult"></table>');
+            if(msgError(id, json)){return;}  
+            MoreTabs.createResult(json);
          }
       });
    });
    
    $("#explainSql").click(function() {
-      if($.trim($("#strSql").val()) == "" || $("#selectDb").val() == null){return;}
+      if($.trim(MoreTabs.getTabActive('oTextarea').val()) == "" || $("#selectDb").val() == null){return;}
+      var srzArray = $("#form_content .selectDb,#form_nav").serializeArray();
+      srzArray[srzArray.length] = MoreTabs.getTabActive('oStrSql');
       var id = this.id;
       jQuery.ajax({
-         url: "includes/SqlCatalog.inc.php?go=db&type=explainSql",
+         url: urlCatalog+"go=db&type=explainSql",
          type: "POST",
          dataType: "json",
-         data: $("#form_content,#form_nav").serializeArray(),
+         data: srzArray,
          beforeSend: function() {
-            startLoad(id);
-            hideMsgs();
+            hideMsgs(1);
          },
          success: function(json) {
             $('#divExplain').html('<table class="table table-striped table-hover" id="tblExplain"></table>');
-            stopLoad(id);
-            var error = msgError(id, json);
-            if(error){
-               $('#divExplainError').html(json['error']);
-               $('#divExplainError').show();
-               return;
-            }
+            if(msgError(id, json)){return;}
             var header = [];
-            jQuery.each(json['info'], function(k, v) {
+            jQuery.each(json.info, function(k, v) {
                header[k] = {'title': v};
             });
             $('#tblExplain').dataTable({
-               'data': json['row'],
+               'data': json.row,
                'columns': header,
                'scrollX': true,
                'searching': false,
@@ -124,9 +86,13 @@ $(document).ready(function() {
       });
    });
    
+   $('#mdlExplain').on('show.bs.modal', function() {
+      $('#divExplain').empty();
+   });
+   
    $("#selectDb").on('change', function() {
       jQuery.ajax({
-         url: "includes/SqlCatalog.inc.php?go=db&type=showTbl",
+         url: urlCatalog+"go=db&type=showTbl",
          type: "POST",
          dataType: "json",
          data: $("#form_content,#form_nav").serializeArray(),
@@ -135,7 +101,7 @@ $(document).ready(function() {
          },
          success: function(json) {
             $('#divShow').html('<select id="showList" name="showList"></select>');
-            jQuery.each(json['row'], function(k, v) {$('#showList').append('<option >' + v + '</option>');});
+            jQuery.each(json.row, function(k, v) {$('#showList').append('<option >' + v + '</option>');});
             $("#divShow select").selectr({
                title: ' ',
                placeholder: 'Search...',
@@ -148,31 +114,10 @@ $(document).ready(function() {
          },
       });
    });
- 
-$( "xtextarea" ).bind({
-keypress: function(event) {   
-      if(event.which==13){
-         console.log('----ENTER----');
-         findPos = $(this).val().lastIndexOf("#");
-         endRow = $(this).val().lastIndexOf("\n");
-         var str = $(this).val().substring(findPos, endRow); 
-         if(findPos!=-1 && findPos<endRow){
-            console.log(str + '  ' +findPos+'  '+endRow);
-            }
-      }
-   }
-});
-
-   $(document).on("change", "#divShow select", function( ) {
-      var iniPos = $('#strSql').prop("selectionStart");
-      var txt = " " + $("#divShow li.selected .option-name").text() + " ";
-      var endPos = iniPos + txt.length;
-      $("#strSql").val($("#strSql").val().slice(0, iniPos) + txt + $("#strSql").val().slice( iniPos));
-      document.getElementById('strSql').setSelectionRange(endPos,endPos);
-   });
 
    $("#addSql").on('click', function() {
-      if($.trim($("#strSql").val()) == ""){
+      var id = this.id;
+      if($.trim(MoreTabs.getTabActive('oTextarea').val()) == ""){
          bootbox.alert(msg1);
          return;
       }
@@ -181,48 +126,34 @@ keypress: function(event) {
             return;
          }
          else{           
+            var srzArray = $("#form_content").serializeArray();
+            srzArray[0] = MoreTabs.getTabActive('oStrSql');
             jQuery.ajax({
-               url: "includes/SqlCatalog.inc.php?go=xml&type=addItem&title=" + title,
+               url: urlCatalog+"go=xml&type=addItem&title=" + title,
                type: "POST",
-               data: $("#form_content").serializeArray(),
+               data: srzArray,
+               beforeSend: function() {
+                  hideMsgs(1);
+               },
                success: function(msg) {
-                  if(msg.length > 1){
-                     bootbox.alert(msg);
-                  }else{
-                     $("#menu_div").load(location.href + " #menu_div>*", "");
-                     $("#accordionMod").load(location.href + " #accordionMod>*", "");
-                     $("#accordionA").removeClass("in");
-                  }
+                  if(msgError(id, msg)){return;}
+                  $("#menu_div").load(location.href + " #menu_div>*", "");
+                  $("#accordionMod").load(location.href + " #accordionMod>*", "");
+                  $("#accordionA").removeClass("in");                  
                },
             });
          }
       });
    });
-
-   $("#bigger").click(function() {
-      var curSize = parseInt($('#strSql').css('font-size'));
-      if(curSize <= 20){
-         curSize = curSize + 2;
-      }
-      $('#strSql').css('font-size', curSize);
-   });
-
-   $("#smoller").click(function() {
-      var curSize = parseInt($('#strSql').css('font-size'));
-      if(curSize > 15){
-         curSize = curSize - 2;
-      }
-      $('#strSql').css('font-size', curSize);
-   });
-
-   $("#bold").click(function() {
-      $('#strSql').css('font-weight', 'bold');
-   });
-   $("#italic").click(function() {
-      $('#strSql').css('font-style', 'italic');
-   });
-   $("#color").click(function() {
-      $('#strSql').css('color', 'red');
+   
+   $(document).on("change", "#divShow select", function( ) {
+      var strSql = MoreTabs.getTabActive('oTextarea');
+      var iniPos = strSql.prop("selectionStart");
+      var iniEndSelect = strSql.prop("selectionEnd");
+      var txt = " " + $("#divShow li.selected .option-name").text() + " ";
+      var endPos = iniPos + txt.length;
+      strSql.val(strSql.val().slice(0, iniPos) + txt + strSql.val().slice( iniEndSelect));
+      //document.getElementById('strSql').setSelectionRange(endPos,endPos);
    });
 //+++++++++++++++++++++++++++++++++++++++++++++++++++ nav
    $("#btnMod").on('click', function() {
@@ -235,11 +166,11 @@ keypress: function(event) {
          load = 1;
          if($.trim($("#nameGroup").val()) == ""){return;}
          data = "";
-         url = "includes/SqlCatalog.inc.php?go=xml&type=addGroup&title=" + $("#nameGroup").val();
+         url = urlCatalog+"go=xml&type=addGroup&title=" + $("#nameGroup").val();
       }else if(tabn == '#tab2'){
          load = 1;
          data = $("#tab2 :input").serializeArray();
-         url = "includes/SqlCatalog.inc.php?go=xml&type=delGroup";
+         url = urlCatalog+"go=xml&type=delGroup";
       }else if(tabn == '#tab3'){
          load = 2;
          if($("#tab3 :input[name='itmAll']").prop('checked') == false
@@ -259,19 +190,20 @@ keypress: function(event) {
             return;
          }
          data = $("#tab3 :input").serializeArray();
-         url = "includes/SqlCatalog.inc.php?go=db&type=saveSrv";
+         url = urlCatalog+"go=db&type=saveSrv";
       }else if(tabn == '#tab4'){
          load = 2;
          data = $("#tab4 :input").serializeArray();
-         url = "includes/SqlCatalog.inc.php?go=vw&type=newView";
+         url = urlCatalog+"go=vw&type=newView";
       }else{return;}
       
       jQuery.ajax({
          url: url,
          type: "POST",
+         //dataType: "json", // nopi
          data: data,
          beforeSend: function() {
-            hideMsgs();
+            hideMsgs(1);
          },
          success: function(msg) {
             var error = msgError(id, msg);
@@ -326,20 +258,32 @@ keypress: function(event) {
       $('#findSrv').trigger('click');
    }
 
-   function msgError(id, json) {
+   function msgError(id, data) {
 //console.log( $.type(json) );console.log(id);console.log(json);
-      if(jQuery.type(json) === "string" && json.substring(0, 1) == '['){
+      if(jQuery.type(data) === "string" && data.substring(0, 1) == '['){
          return false;
       }
-      if(id=="btnMod" && $.trim(json) == ""){return false;}
-      if($.trim(json) == "null"){return true;}
-      if(jQuery.type(json) === "string"){
-         json = JSON.parse('{"error":["' + json + '"]}');
+      
+      if(id=="findSrv" && data == null){return true;}
+      if($.trim(data) == "null"){return true;}
+
+      var json = data;
+      if( (id=="btnMod" || id=="addSql") && jQuery.type(data) === "string"){
+        json = {'error':data};
       }
-      if($.trim(json['error']) != ''){
-         $('#divMsgDb').empty();
-         $('#divMsgDb').append(json['error']);
-         $('#divMsgDb').show();
+      if($.trim(json.error) != ''){
+         if(id=="btnMod" || id=="findSrv" || id=="addSql"){
+            $('.divMsgDb').empty();
+            $('.divMsgDb').append(json.error);
+            $('.divMsgDb').show();
+         }else if(id=="sendSql"){
+            MoreTabs.sendError(json.error);
+            
+         }else if(id=="explainSql"){
+            $('.divExplainError').empty();
+            $('.divExplainError').append(json.error);
+            $('.divExplainError').show();
+         }
          return true;
       }
       return false;
@@ -353,12 +297,17 @@ keypress: function(event) {
       $('#' + id).button('reset');
       $('#' + id).dequeue();
    }
-   function hideMsgs() {
-      $('#divMsgDb').hide();
-      $('#divResultInfo').hide();
-      $('#divResultError').hide();
-      $('#divExplainError').hide();
+   function hideMsgs(tabn) {
+      if(tabn!=1){
+         tabn.hide();
+      }
+      $('.divMsgDb').hide();
+      $('.divExplainError').hide();
    }
 
 
 });
+function putSql(sql)
+{
+   MoreTabs.getTabActive('oTextarea').val(sql);
+}

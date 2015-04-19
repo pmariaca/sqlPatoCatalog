@@ -98,7 +98,7 @@ class SqlCatalog {
       $t = 0;
       $arrAccordion = array();
   //echo "<pre>";print_r($this->request);echo "</pre>";    
-      if (empty($this->request)) {   
+      if (!isset($this->request['go'])) {   
          $iniXml = new SqlCatalogXml();
          $arrAccordion = $iniXml->readCatalog();
          $t = 1;
@@ -152,6 +152,7 @@ class SqlCatalog {
       if(isset($this->request['selectDb']) && trim($this->request['selectDb'])!=""){
          $selectDb = $this->request['selectDb'];
       }
+//echo "<pre>";print_r($this->request);echo "</pre>";    return;
       $conn = new SqlCatalogDb($selectDb, $this->srv, $this->usr,$this->pwd);
       if ($this->request['type'] == 'findSrv') {
          $arrResult = $conn->findDB();

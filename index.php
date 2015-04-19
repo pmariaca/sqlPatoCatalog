@@ -143,7 +143,7 @@
                <h4 class="modal-title">explain SQL</h4>
             </div>
             <div class="modal-body">
-               <div class="alert alert-warning" role="alert" id="divExplainError" style="display: none;"></div>
+               <div class="alert alert-warning divExplainError" role="alert"></div>
                <div id="divExplain" ></div>
             </div>
             <div class="modal-footer">
@@ -155,43 +155,36 @@
 
    <!-- +++++++++++++++++++++++++++++++++++++++++++++++++ -->
    <div class="container-fluid">
-      <form id="form_content" role="form"> 
+      <form id="form_content" class="form-inline" role="form"> 
 
          <!-- ---------------------------- CENTRAL PART  -------------------------------------------- -->          
 
          <div id="main_div" class="main_div" >
-            <select class="form-control" id="selectDb" name="selectDb" style="display: none;">
+         <div class="divSelectDb" >
+            <select class="form-control selectDb" id="selectDb" name="selectDb">
                <?php if(is_array($arrDb)): ?>
                   <?php foreach($arrDb as $db): ?>
                      <?= "<option>" . $db . "</option>"; ?>
                   <?php endforeach; ?>
                <?php endif; ?>
             </select>
-            <div  class="alert alert-warning" role="alert" id="divMsgDb" style="display: none;"></div>
+
+            <input type="button" class="btn btn-default" id="sendSql" name="sendSql" value="<?= FIND ?>">
+            <input type="button" class="btn btn-default" data-toggle="modal" data-target="#mdlExplain" id="explainSql" name="explainSql" value=" explain SQL">
+            </div>
+            
+            <div  class="alert alert-warning divMsgDb" role="alert"></div>
+            
+            
             <div id="loading" name="loading" style="display: none;">
                <div class="progress" >
-                  <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" 
+                  <div class="progress-bar progress-bar-info progress-bar-striped active" role="progressbar" 
                        aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
                      <span class="sr-only">LOADING...</span>
                   </div>
                </div>
             </div>
-            
-            <div id="divSql">
-               <div id="divToolBar">
-               <button type="button" class="btn btn-default" id="bigger" name="bigger">
-                  <span class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span>
-               </button>
-               <button type="button" class="btn btn-default" id="smoller" name="smoller">
-                  <span class="glyphicon glyphicon-zoom-out" aria-hidden="true"></span>
-               </button>  
-            </div>
-               <textarea id="strSql" name="strSql" rows="5" placeholder="SELECT * FROM"></textarea>
-            </div>
-            
-            <div class="alert alert-warning" role="alert" id="divResultError" style="display: none;"></div>
-            <p class="badge" id="divResultInfo"></p>
-            <div id="divResult" ></div>  
+            <div id="resultShow"></div>             
          </div>
 
          <!-- ---------------------------- MENUS -------------------------------------------- -->          
@@ -208,7 +201,7 @@
                               <?php if(array_key_exists('item', $group)): ?>
                                  <?php foreach($group['item'] as $k => $item): ?>
                                     <li class="list-group-item">
-                                       <INPUT class="btn btn-link" type="button" onclick="$('#strSql').val('<?= $item[1] ?>')" value="<?= $item[0] ?>" />
+                                       <INPUT class="btn btn-link" type="button" onClick="putSql('<?= $item[1] ?>');" value="<?= $item[0] ?>" />
                                     </li>
                                  <?php endforeach; ?>
                               <?php endif; ?>
@@ -223,8 +216,6 @@
          </div>
 
          <div class="menu2_div" id="menu2_div">
-            <input type="button" class="btn btn-default" data-toggle="modal" data-target="#mdlExplain" id="explainSql" name="explainSql" value=" explain SQL">
-            <input type="button" class="btn btn-default" id="sendSql" name="sendSql" value="<?= FIND ?>">
             
             <input type="button" class="btn btn-default" id="addSql" name="addSql" value="<?= SAVE ?>">
             <button type="button" class="btn btn-default" data-toggle="collapse" data-target="#accordionA" id="btnAddSql">
