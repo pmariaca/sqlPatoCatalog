@@ -26,6 +26,8 @@ $strHead .=  "<link rel='stylesheet' href='css/sqlCatalog.css' type='text/css'>"
 $strHead .=  "<link rel='stylesheet' href='css/sqlResult.css' type='text/css'>";
 
 $strHead .=  "<script type='text/javascript' src='js/jquery.js'></script>";
+$strHead .=  "<script type='text/javascript' src='js/asuggest/jquery.a-tools-1.4.1.js'></script>";
+$strHead .=  "<script type='text/javascript' src='js/asuggest/jquery.asuggest.js'></script>";
 $strHead .=  "<script type='text/javascript' src='dist/selectr/dist/selectr.js'></script>";
 $strHead .=  "<script type='text/javascript' src='dist/js/bootstrap.min.js'></script>";
 if($themeView==2){
@@ -38,4 +40,4 @@ $strHead .=  "<script type='text/javascript' src='dist/DataTables/plug-ins/integ
 
 $strHead .=  "<script type='text/javascript' src='js/sqlCatalog.js'></script>";
 $strHead .=  "<script type='text/javascript' src='js/sqlResult.js'></script>";
-$strHead .= "<script>var msg1 = '".MSG_1."'; var msg2 = '".MSG_2."';</script>";
+$strHead .= "<script>var msg1 = '".MSG_1."'; var msg2 = '".MSG_2."';var SHOW_MORE_TABS='".SHOW_MORE_TABS."';var HIDE_MORE_TABS='".HIDE_MORE_TABS."';</script>";

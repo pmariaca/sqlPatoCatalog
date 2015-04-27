@@ -93,6 +93,9 @@
 #divShow .form-control {
    width: 100%;
 }
-.divMsgDb, .divExplainError, .divSelectDb{
+.divMsgDb, .divExplainError, .divSelectDb, #resultShow2{
    display: none;
+}
+#showMoreTab{
+   margin-top: 5px;
 }

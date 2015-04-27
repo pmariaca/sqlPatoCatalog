@@ -184,7 +184,10 @@
                   </div>
                </div>
             </div>
-            <div id="resultShow"></div>             
+            <div id="divResultShow">
+               <div id="resultShow" class="resultShow"></div>   
+               <div id="resultShow2" class="resultShow"></div>   
+            </div>
          </div>
 
          <!-- ---------------------------- MENUS -------------------------------------------- -->          
@@ -235,6 +238,9 @@
                </div>
             </div>                    
             <div id="divShow" style="display: none;" ></div>
+            <button type="button" class="btn btn-default" data-toggle="button" aria-pressed="false" autocomplete="off" id="showMoreTab" name="showMoreTab">
+               <?= SHOW_MORE_TABS ?>
+            </button>
             <!-- +++++++++++++++++++++++++++++++++++++++++++++++++ -->
          </div>
       </form>   

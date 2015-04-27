@@ -10,8 +10,9 @@
    MoreTabs.init = function(idDiv)
    {
       idDivContainer = idDiv;
-      var ul = $('<ul>').attr('id', 'resultTab').addClass('nav nav-tabs');
-      var li = $('<li>').attr('id', 'tab_plus').appendTo(ul);
+      numTab = 1;
+      var ul = $('<ul>').addClass('nav nav-tabs resultTab').attr('id', idDivContainer+'resultTab');
+      var li = $('<li>').addClass('tab_plus').attr('id', idDivContainer+'tab_plus').appendTo(ul);
       $('<span>').attr('aria-hidden', 'true').addClass('glyphicon glyphicon-plus-sign').appendTo(li);
       ul.appendTo('#' + idDivContainer);
       $('<div>').addClass('tab-content').appendTo('#' + idDivContainer);
@@ -28,7 +29,7 @@
    }
    
    function tabActive(type){
-      var tabActive = $("ul#resultTab li.active a");
+      var tabActive = $('ul#'+idDivContainer+'resultTab li.active a');
       if(type==='sIdTab'){
          return tabActive.attr('name');
        
@@ -72,9 +73,10 @@
          'columns': header,
          'scrollX': true,
          'ordering': false,
-         'iDisplayLength': 15,
+         'iDisplayLength': 10,
          'aLengthMenu': [[5, 10, 15, 25, 50, 100, -1], [5, 10, 15, 25, 50, 100, 'All']]
       });
+      $( "div.DTTT a" ).addClass( "input-sm" );
    }
    
    MoreTabs.sendError = function(error){
@@ -90,20 +92,21 @@
     */
    function addTab()
    {
+      if($('#'+idDivContainer+'resultTab li').length==2){numTab=2;}
       if(numTab == 1){
          var li = $('<li>').addClass('active');
       }else{
          var li = $('<li>');
       }
-      var a = $('<a>').attr('data-toggle', 'tab').attr('name', 'tab_' + numTab).attr('href', '#tab_' + numTab).addClass('tabRst').text('tab_' + numTab).appendTo(li);
+      var a = $('<a>').attr('data-toggle', 'tab').attr('name', idDivContainer+'tab_' + numTab).attr('href', '#'+idDivContainer+'tab_' + numTab).addClass('tabRst').text('tab_' + numTab).appendTo(li);
       if(numTab != 1){
          $('<span>').attr('aria-hidden', 'true').addClass('glyphicon glyphicon-remove-sign closeTab').appendTo(a);
       }
-      li.insertBefore($('#tab_plus'));
+      li.insertBefore($('#'+idDivContainer+'tab_plus'));
       if(numTab == 1){
-         var div1 = $('<div>').attr('id', 'tab_' + numTab).addClass('tab-pane active in');
+         var div1 = $('<div>').attr('id', idDivContainer+'tab_' + numTab).addClass('tab-pane active in');
       }else{
-         var div1 = $('<div>').attr('id', 'tab_' + numTab).addClass('tab-pane');
+         var div1 = $('<div>').attr('id', idDivContainer+'tab_' + numTab).addClass('tab-pane');
       }
       /*
        // tool-bar
@@ -123,17 +126,31 @@
       numTab++;
    }
    
-   $(document).on("click", "#tab_plus", function() {
+   $(document).on("click", ".tabRst", function() {
+      idDivContainer = $(this).closest('div').attr('id');
+   });
+   
+   $(document).on("click", "textarea", function() {
+      idDivContainer = $(this).parents('.resultShow').attr('id');
+   });
+   
+   $(document).on("focus", "textarea", function() {
+      idDivContainer = $(this).parents('.resultShow').attr('id');
+   });
+   
+   $(document).on("click", ".tab_plus", function() {
+      idDivContainer = $(this).closest('div').attr('id');
       addTab();
-      $('#resultTab a:last').tab('show');
+      $('#'+idDivContainer + ' .resultTab a:last').tab('show');
       tabActive('oTextarea').focus();
    });
 
-   $(document).on("click", "#resultTab .closeTab", function() {
+   $(document).on("click", '.closeTab', function() {
+      idDivContainer = $(this).closest('div').attr('id');
       var tabId = $(this).parents('li').children('a').attr('href');
       $(this).parents('li').remove('li');
       $(tabId).remove();
-      $('#resultTab a:last').tab('show');
+      $('#'+idDivContainer+'resultTab a:last').tab('show');
    });
 
    $(document).on('click', '.bigger', function() {
@@ -152,17 +169,4 @@
       tabActive('oTextarea').css('font-size', curSize);
    });
 
-   $("xtextarea").bind({
-      keypress: function(event) {
-         if(event.which == 13){
-            console.log('----ENTER----');
-            findPos = $(this).val().lastIndexOf("#");
-            endRow = $(this).val().lastIndexOf("\n");
-            var str = $(this).val().substring(findPos, endRow);
-            if(findPos != -1 && findPos < endRow){
-               console.log(str + '  ' + findPos + '  ' + endRow);
-            }
-         }
-      }
-   });
 }(window.MoreTabs = window.MoreTabs || {}, jQuery));

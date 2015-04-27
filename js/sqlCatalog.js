@@ -1,12 +1,14 @@
+
 $(document).ready(function() {
    var urlCatalog = "includes/SqlCatalog.inc.php?";
+   MoreTabs.init('resultShow2');
    MoreTabs.init('resultShow');
-   
+
    // action botons
-   $("#findSrv").click(function() {
+   $("#findSrv").on('click', function() {
       var data = $("#form_nav").serializeArray();
       var id = this.id;
-      jQuery.ajax({
+      $.ajax({
          url: urlCatalog+"go=db&type=findSrv",
          type: "POST",
          dataType: "json",
@@ -28,14 +30,16 @@ $(document).ready(function() {
          }, });
    });
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++ menu2_div   
+//+++++++++++++++++++++++++++++++++++++++++++++++++++ menu2_div    
 
-   $("#sendSql").click(function() {
+
+   $("#sendSql").on('click', function(event) {
+       event.preventDefault();
       if($.trim(MoreTabs.getTabActive('oTextarea').val()) == "" || $("#selectDb").val() == null){return;}
       var srzArray = $("#form_content .selectDb,#form_nav").serializeArray();
-      srzArray[srzArray.length] = MoreTabs.getTabActive('oStrSql');
+      srzArray.push(MoreTabs.getTabActive('oStrSql'));
       var id = this.id;
-      jQuery.ajax({
+      $.ajax({
          url: urlCatalog+"go=db&type=sqlResult",
          type: "POST",
          dataType: "json",
@@ -49,16 +53,19 @@ $(document).ready(function() {
             $('#'+MoreTabs.getTabActive('sIdTab')+' .divResult').html('<table class="table table-striped table-hover" id="' + MoreTabs.getTabActive('sIdTab') + '_tblResult"></table>');
             if(msgError(id, json)){return;}  
             MoreTabs.createResult(json);
-         }
+         },
+         error: function() {
+            //$('#info').html('<p>ups, an error has occurred</p>');
+         },
       });
    });
-   
-   $("#explainSql").click(function() {
+      
+   $("#explainSql").on('click', function() {
       if($.trim(MoreTabs.getTabActive('oTextarea').val()) == "" || $("#selectDb").val() == null){return;}
       var srzArray = $("#form_content .selectDb,#form_nav").serializeArray();
-      srzArray[srzArray.length] = MoreTabs.getTabActive('oStrSql');
+      srzArray.push(MoreTabs.getTabActive('oStrSql'));
       var id = this.id;
-      jQuery.ajax({
+      $.ajax({
          url: urlCatalog+"go=db&type=explainSql",
          type: "POST",
          dataType: "json",
@@ -91,7 +98,7 @@ $(document).ready(function() {
    });
    
    $("#selectDb").on('change', function() {
-      jQuery.ajax({
+      $.ajax({
          url: urlCatalog+"go=db&type=showTbl",
          type: "POST",
          dataType: "json",
@@ -128,7 +135,7 @@ $(document).ready(function() {
          else{           
             var srzArray = $("#form_content").serializeArray();
             srzArray[0] = MoreTabs.getTabActive('oStrSql');
-            jQuery.ajax({
+            $.ajax({
                url: urlCatalog+"go=xml&type=addItem&title=" + title,
                type: "POST",
                data: srzArray,
@@ -155,6 +162,20 @@ $(document).ready(function() {
       strSql.val(strSql.val().slice(0, iniPos) + txt + strSql.val().slice( iniEndSelect));
       //document.getElementById('strSql').setSelectionRange(endPos,endPos);
    });
+   
+   $("#showMoreTab").on('click', function() {
+      var isActive = $(this).hasClass("active");
+      if(isActive){
+         $('#resultShow2').hide();
+         $(this).html(SHOW_MORE_TABS);
+         $('#resultShow textarea').focus(); 
+      }else{
+         $('#resultShow2').show();
+         $(this).html(HIDE_MORE_TABS);
+         $('#resultShow2 textarea').focus(); 
+      }
+   });
+   
 //+++++++++++++++++++++++++++++++++++++++++++++++++++ nav
    $("#btnMod").on('click', function() {
       var id = this.id;
@@ -197,7 +218,7 @@ $(document).ready(function() {
          url = urlCatalog+"go=vw&type=newView";
       }else{return;}
       
-      jQuery.ajax({
+      $.ajax({
          url: url,
          type: "POST",
          //dataType: "json", // nopi
@@ -250,7 +271,7 @@ $(document).ready(function() {
       $("#form_mod #tab3 input:text").prop('disabled', true);
       $('#ttab a[href="#tab1"]').tab('show');
    });
-//+++++++++++++++++++++++++++++++++++++++++++++++++++  
+   //+++++++++++++++++++++++++++++++++++++++++++++++++++  
    if($("#flg_db").val() == 3){
       $('#findSrv').hide();
       $('#usr').hide();
@@ -258,6 +279,7 @@ $(document).ready(function() {
       $('#findSrv').trigger('click');
    }
 
+   //+++++++++++++++++++++++++++++++++++++++++++++++++++  
    function msgError(id, data) {
 //console.log( $.type(json) );console.log(id);console.log(json);
       if(jQuery.type(data) === "string" && data.substring(0, 1) == '['){
@@ -268,8 +290,9 @@ $(document).ready(function() {
       if($.trim(data) == "null"){return true;}
 
       var json = data;
-      if( (id=="btnMod" || id=="addSql") && jQuery.type(data) === "string"){
-        json = {'error':data};
+      if( (id=="btnMod" || id=="addSql") && jQuery.type(data) === "string" && jQuery.type(data) != "undefined"){
+         json = {'error':data};
+       // json = JSON.parse(data); 
       }
       if($.trim(json.error) != ''){
          if(id=="btnMod" || id=="findSrv" || id=="addSql"){

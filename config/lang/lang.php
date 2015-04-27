@@ -19,6 +19,8 @@ switch ($lang){
       define('SRV_GROUP_INFO2','Por ahora, solo los datos de una ip se puede guardar');
       define('MSG_1','escribir busqueda');
       define('MSG_2','etiqueta para el sql');
+      define('SHOW_MORE_TABS','Ver extra tabs');
+      define('HIDE_MORE_TABS','Ocultar extra tabs');
       
       define('FILE_NOT_EXIST','No existe el archivo');
       define('DIR_NOT_EXIST','No existe el directorio');
@@ -42,6 +44,8 @@ switch ($lang){
       define('SRV_GROUP_INFO2','For now, just the content of one ip can be saved');
       define('MSG_1','put some query');
       define('MSG_2','name for sql');
+      define('SHOW_MORE_TABS','Show extra tabs');
+      define('HIDE_MORE_TABS','Hide extra tabs');
      
       define('FILE_NOT_EXIST','File doesn\'t exist');
       define('DIR_NOT_EXIST','Directory doesn\'t exists ');
