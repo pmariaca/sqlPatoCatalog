@@ -7,13 +7,13 @@
       <meta name="keywords" content="sql, catalog, mysql, mysqli, edit, save" />
       <meta name="author" content="Patricia Mariaca" />
       <title>sqlPatoCatalog</title>
-      <?php echo $strHead;?>
+      <?php echo $strHead; ?>
    </head>
-   <body >
-   <nav class="navbar navbar-default">
+   <body>
+   <nav class="navbar navbar-default navbar-static-top">
       <div class="container-fluid">
          <div class="navbar-header">
-            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-navy-navbar-collapse-1">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#mynavbar">
                <span class="sr-only">Toggle navigation</span>
                <span class="icon-bar"></span>
                <span class="icon-bar"></span>
@@ -21,7 +21,7 @@
             </button>
             <a class="navbar-brand" href="#"></a>
          </div>
-         <div class="collapse navbar-collapse" id="bs-navy-navbar-collapse-1">
+         <div class="collapse navbar-collapse" id="mynavbar">
             <form id="form_nav" class="navbar-form navbar-right" role="search">
                <!-- solo se usa para visualizacion -->
                <input type="hidden" id="flg_db" name="flg_db" value="<?= $flg; ?>">
@@ -40,9 +40,13 @@
       </div>
    </nav>
    <!-- +++++++++++++++++++++++++++++++++++++++++++++++++ --> 
-   <div class="modal bs-mody-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true" id="mmodal">
+   <div class="modal bs-mody-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mmodalLabel" aria-hidden="true" id="mmodal">
       <div class="modal-dialog modal-sm">
          <div class="modal-content">
+            <div class="modal-header">
+               <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+               <h4 class="modal-title"></h4>
+            </div>
             <div class="modal-body">
                <div class="bs-mody">
                   <ul class="nav nav-tabs" id="ttab">
@@ -58,32 +62,32 @@
                      </div>
                      <!-- +++++++++++++++++++++++++++++++++++++++++++++++++ -->
                      <div id="tab2" class="tab-pane fade">
-                        <div id="accordionMod">
-                           <?php foreach($arrAccordion as $collapse => $group): ?>
-                              <div class="panel-group" id="accordionMod<?= $collapse; ?>">    
-                                 <div class="panel panel-default">
-                                    <div class="panel-heading" >
-                                       <input type="checkbox" class="grp" id="grp_<?= $collapse; ?>" name="grp_<?= $collapse; ?>" />
-                                       <a data-toggle="collapse" data-parent="#accordionMod<?= $collapse; ?>" href="#nn_collapse<?= $collapse; ?>" ><?= $group['title']; ?></a>
-                                    </div>
+                        <div id="accordionMod" class="myaccordion">
+                        <?php foreach($arrAccordion as $collapse => $group): ?>
+                           <div class="panel-group" id="accordionMod<?= $collapse; ?>">    
+                              <div class="panel panel-default">
+                                 <div class="panel-heading" >
+                                    <input type="checkbox" class="grp" id="grp_<?= $collapse; ?>" name="grp_<?= $collapse; ?>" />
+                                    <a data-toggle="collapse" data-parent="#accordionMod<?= $collapse; ?>" href="#nn_collapse<?= $collapse; ?>" ><?= $group['title']; ?></a>
+                                 </div>
 
-                                    <div id="nn_collapse<?= $collapse; ?>" class="panel-collapse collapse">
-                                       <div class="panel-body">
-                                          <ul class="list-group ">
-                                             <?php if(array_key_exists('item', $group)): ?>
-                                                <?php foreach($group['item'] as $k => $item): ?>
-                                                   <li class="list-group-item">
-                                                      <input type="checkbox" name="itemGrp_<?= $collapse; ?>_<?= $k; ?>"  />
-                                                      <?= $item[0] ?>
-                                                   </li>
-                                                <?php endforeach; ?>
-                                             <?php endif; ?>
-                                          </ul>
-                                       </div>
+                                 <div id="nn_collapse<?= $collapse; ?>" class="panel-collapse collapse">
+                                    <div class="panel-body">
+                                       <ul class="list-group ">
+                                       <?php if(array_key_exists('item', $group)): ?>
+                                          <?php foreach($group['item'] as $k => $item): ?>
+                                             <li class="list-group-item">
+                                                <input type="checkbox" name="itemGrp_<?= $collapse; ?>_<?= $k; ?>"  />
+                                                <?= $item[0] ?>
+                                             </li>
+                                          <?php endforeach; ?>
+                                       <?php endif; ?>
+                                       </ul>
                                     </div>
-                                 </div>    
-                              </div>
-                           <?php endforeach; ?> 
+                                 </div>
+                              </div>    
+                           </div>
+                        <?php endforeach; ?> 
                         </div>                         
                      </div>
                      <!-- +++++++++++++++++++++++++++++++++++++++++++++++++ -->
@@ -101,7 +105,7 @@
                               </li>
                               <li class="list-group-item">
                                  <input type="checkbox" aria-label="true" name="itmPass" id="itmPass"><?= SRV_GROUP_3 ?>
-                                 <input type="text" class="form-control input-sm" disabled="disabled" aria-label="true" placeholder="pass"name="itemPass" id="itemPass" >
+                                 <input type="text" class="form-control input-sm" disabled="disabled" aria-label="true" placeholder="pass" name="itemPass" id="itemPass" >
                               </li>
                               <li class="list-group-item">
                                  <input type="checkbox" aria-label="true" name="itmAll" id="itmAll"><?= SRV_GROUP_4 ?>
@@ -113,12 +117,15 @@
                      <div id="tab4" class="tab-pane fade">
                         <div class="input-group-sm">                    
                            <ul class="list-group ">                             
-                              <?php foreach($arrWatch as $k => $less): ?>
-                              <?php $checked="";if($k==$themeItem){$checked="checked";}; ?>
+                           <?php foreach($arrWatch as $k => $less): ?>
+                              <?php $checked = "";
+                              if($k == $themeItem){
+                                 $checked = "checked";
+                              }; ?>
                               <li class="list-group-item">
                                  <input type="radio" name="less" <?= $checked; ?> value="<?= $k; ?>"><?= $less; ?>
                               </li>    
-                              <?php endforeach;?> 
+                           <?php endforeach; ?> 
                            </ul>
                         </div>
                      </div>
@@ -135,7 +142,7 @@
    </div>
 
    <!-- +++++++++++++++++++++++++++++++++++++++++++++++++ -->
-   <div class="modal " tabindex="-1" id="mdlExplain">
+   <div class="modal " tabindex="-1" role="dialog" aria-labelledby="mdlExplainLabel" id="mdlExplain">
       <div class="modal-dialog modal-lg">
          <div class="modal-content">
             <div class="modal-header">
@@ -147,7 +154,7 @@
                <div id="divExplain" ></div>
             </div>
             <div class="modal-footer">
-               <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+               <button type="button" class="btn btn-default btn-sm" data-dismiss="modal">Close</button>
             </div>
          </div>
       </div>
@@ -158,24 +165,26 @@
       <form id="form_content" class="form-inline" role="form"> 
 
          <!-- ---------------------------- CENTRAL PART  -------------------------------------------- -->          
-
          <div id="main_div" class="main_div" >
-         <div class="divSelectDb" >
-            <select class="form-control selectDb" id="selectDb" name="selectDb">
+            <div class="divSelectDb" >
+               <select class="form-control selectDb" id="selectDb" name="selectDb">
                <?php if(is_array($arrDb)): ?>
                   <?php foreach($arrDb as $db): ?>
                      <?= "<option>" . $db . "</option>"; ?>
                   <?php endforeach; ?>
                <?php endif; ?>
-            </select>
+               </select>
 
-            <input type="button" class="btn btn-default" id="sendSql" name="sendSql" value="<?= FIND ?>">
-            <input type="button" class="btn btn-default" data-toggle="modal" data-target="#mdlExplain" id="explainSql" name="explainSql" value=" explain SQL">
+               <input type="button" class="btn btn-default" id="sendSql" name="sendSql" value="<?= FIND ?>">
+               <input type="button" class="btn btn-default" id="explainSql" name="explainSql" value=" explain SQL">            
+               <input type="button" data-toggle="button" class="btn btn-default" id="showProcessList" name="showProcessList" value="<?= SHOW_PROCESSLIST ?>">
+               <button type="button" data-toggle="button" class="btn btn-default" id="showHelp" name="showHelp">
+                  <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+               </button>
             </div>
-            
+
             <div  class="alert alert-warning divMsgDb" role="alert"></div>
-            
-            
+
             <div id="loading" name="loading" style="display: none;">
                <div class="progress" >
                   <div class="progress-bar progress-bar-info progress-bar-striped active" role="progressbar" 
@@ -191,37 +200,37 @@
          </div>
 
          <!-- ---------------------------- MENUS -------------------------------------------- -->          
-         <div class="menu_div" id="menu_div">
+         <div class="menu_div myaccordion" id="menu_div">
             <div class="panel-group" id="accordionN">    
-               <?php foreach($arrAccordion as $collapse => $group): ?>
-                  <div class="panel panel-default">
-                     <div class="panel-heading">
-                        <a data-toggle="collapse" data-parent="#accordionN" href="#n_collapse<?= $collapse; ?>" ><?= $group['title']; ?></a>
-                     </div>
-                     <div id="n_collapse<?= $collapse; ?>" class="panel-collapse collapse">
-                        <div class="panel-body">
-                           <ul class="list-group ">
-                              <?php if(array_key_exists('item', $group)): ?>
-                                 <?php foreach($group['item'] as $k => $item): ?>
-                                    <li class="list-group-item">
-                                       <INPUT class="btn btn-link" type="button" onClick="putSql('<?= $item[1] ?>');" value="<?= $item[0] ?>" />
-                                    </li>
-                                 <?php endforeach; ?>
-                              <?php endif; ?>
-                           </ul>
-                        </div>
-
-                     </div>
+            <?php foreach($arrAccordion as $collapse => $group): ?>
+               <div class="panel panel-default">
+                  <div class="panel-heading">
+                     <a data-toggle="collapse" data-parent="#accordionN" href="#n_collapse<?= $collapse; ?>" ><?= $group['title']; ?></a>
                   </div>
-               <?php endforeach; ?>
+                  <div id="n_collapse<?= $collapse; ?>" class="panel-collapse collapse">
+                     <div class="panel-body">
+                        <ul class="list-group ">
+                        <?php if(array_key_exists('item', $group)): ?>
+                           <?php foreach($group['item'] as $k => $item): ?>
+                              <li class="list-group-item">
+                                 <INPUT class="btn btn-link" type="button" onClick="putSql('<?= $item[1] ?>');" value="<?= $item[0] ?>" />
+                              </li>
+                           <?php endforeach; ?>
+                        <?php endif; ?>
+                        </ul>
+                     </div>
+
+                  </div>
+               </div>
+            <?php endforeach; ?>
             </div>  
 
          </div>
 
          <div class="menu2_div" id="menu2_div">
-            
-            <input type="button" class="btn btn-default" id="addSql" name="addSql" value="<?= SAVE ?>">
-            <button type="button" class="btn btn-default" data-toggle="collapse" data-target="#accordionA" id="btnAddSql">
+
+            <input type="button" class="btn btn-default" id="addItem" name="addItem" value="<?= SAVE ?>">
+            <button type="button" class="btn btn-default" data-toggle="collapse" data-target="#accordionA" id="btnAddItem">
                <span class="glyphicon glyphicon-save" aria-hidden="true"></span>
             </button>
             <div id="accordionA" class="collapse ">  
@@ -237,13 +246,32 @@
                   </div>
                </div>
             </div>                    
-            <div id="divShow" style="display: none;" ></div>
+            <div id="divShow" class="divShow"></div>
             <button type="button" class="btn btn-default" data-toggle="button" aria-pressed="false" autocomplete="off" id="showMoreTab" name="showMoreTab">
-               <?= SHOW_MORE_TABS ?>
+            <?= SHOW_MORE_TABS ?>
             </button>
             <!-- +++++++++++++++++++++++++++++++++++++++++++++++++ -->
          </div>
       </form>   
    </div>
+
+   <div class="navbar navbar-default navbar-fixed-bottom" id="navBottom">
+      <div class="container-fluid">
+         <form id="form_bottom" > 
+            <div class="row" id="navProcList">
+               <p class="navbar-text">My footer content goes here...  navProcList</p>
+            </div>
+            <div class="row" id="navHelp">
+               <div class="col-sm-4 col-md-4">
+                  <div id="divShowHelp" class="divShow"></div>
+               </div>
+               <div class="col-sm-8 col-md-8">
+                  <div id="divExpainHelp"></div>
+               </div>
+            </div>
+         </form>
+      </div>
+   </div>
+
 </body>
 </html>

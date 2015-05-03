@@ -1,4 +1,5 @@
-<?php 
+<?php
+
 /**
  * @copyright Copyright (c) Patricia Mariaca Hajducek
  * @license http://opensource.org/licenses/MIT
@@ -24,14 +25,13 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
-*/
-
-define('PATH_SQLCATALOG', str_replace( '\\', '/', realpath(substr(dirname(__FILE__), 0, 0-strlen('includes')))));
-include_once (PATH_SQLCATALOG.DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'lang'.DIRECTORY_SEPARATOR.'lang.php');
+ */
+define('PATH_SQLCATALOG', str_replace('\\', '/', realpath(substr(dirname(__FILE__), 0, 0 - strlen('includes')))));
+include_once (PATH_SQLCATALOG . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'lang' . DIRECTORY_SEPARATOR . 'lang.php');
 include_once ("ManageFiles.php");
-include_once ("SqlCatalogHeader.php");
 include_once ("SqlCatalogXml.php");
 include_once ("SqlCatalogDb.php");
+include_once ("SqlCatalogHeader.php");
 
 $arrAccordion = array();
 $o = new SqlCatalog($_REQUEST);
@@ -40,11 +40,11 @@ $flg = $arr[0];
 $srv = $arr[1];
 $usr = $arr[2];
 $arr = $o->findTodo();
-if($arr['t']==1){
+if($arr['t'] == 1){
    $arrAccordion = $arr['arrAccordion'];
 }
-   
-/* ************************************************************************************** */
+
+/* * ************************************************************************************* */
 
 /**
  * 
@@ -58,7 +58,7 @@ class SqlCatalog {
    private $srv = "";
    private $usr = "";
    private $pwd = "";
-   
+
    /**
     * 
     * @param array $request
@@ -94,47 +94,47 @@ class SqlCatalog {
     * @return array
     */
    public function findTodo()
-   {  
+   {
       $t = 0;
       $arrAccordion = array();
-  //echo "<pre>";print_r($this->request);echo "</pre>";    
-      if (!isset($this->request['go'])) {   
+      //echo "<pre>";print_r($this->request);echo "</pre>";    
+      if(!isset($this->request['go'])){
          $iniXml = new SqlCatalogXml();
          $arrAccordion = $iniXml->readCatalog();
          $t = 1;
       }else{
-         
-         if( isset($this->request['go']) && $this->request['go'] == 'db') {
+
+         if(isset($this->request['go']) && $this->request['go'] == 'db'){
             $this->requestDb();
-         }elseif( isset($this->request['go']) && $this->request['go'] == 'xml') {
+         }elseif(isset($this->request['go']) && $this->request['go'] == 'xml'){
             $this->requestXml();
-         }elseif( isset($this->request['go']) && $this->request['go'] == 'vw') {
+         }elseif(isset($this->request['go']) && $this->request['go'] == 'vw'){
             $this->requestView();
          }
       }
-      return array('t'=>$t ,'arrAccordion'=>$arrAccordion);
+      return array('t' => $t, 'arrAccordion' => $arrAccordion);
    }
-   
+
    /**
     * search databases
     * @return array
     */
    private function requestDb()
    {
-      if ($this->request['type'] == 'saveSrv') {
-         if(isset($this->request['itemSrv']) && isset($this->request['itemUsr']) && isset($this->request['itemPass'])){       
-            $conn = new SqlCatalogDb();           
+      if($this->request['type'] == 'saveSrv'){
+         if(isset($this->request['itemSrv']) && isset($this->request['itemUsr']) && isset($this->request['itemPass'])){
+            $conn = new SqlCatalogDb();
             $r = $conn->testConnection($this->request['itemSrv'], $this->request['itemUsr'], $this->request['itemPass']);
-            if($r===true){
+            if($r === true){
                $f = new ManageFiles();
                $f->saveConf($this->request);
             }else{
-               $str = "<pre>srv:".$this->request['itemSrv'];
-               $str .= ", usr:".$this->request['itemUsr'];
-               $str .= ", pass:".$this->request['itemPass']."</pre>"; 
+               $str = "<pre>srv:" . $this->request['itemSrv'];
+               $str .= ", usr:" . $this->request['itemUsr'];
+               $str .= ", pass:" . $this->request['itemPass'] . "</pre>";
                echo $str;
             }
-         }else{    
+         }else{
             $f = new ManageFiles();
             $f->saveConf($this->request);
          }
@@ -142,49 +142,58 @@ class SqlCatalog {
          $this->jsonRequestDb();
       }
    }
-   
+
    /**
     * 
     */
    private function jsonRequestDb()
    {
       $selectDb = "";
-      if(isset($this->request['selectDb']) && trim($this->request['selectDb'])!=""){
+      if(isset($this->request['selectDb']) && trim($this->request['selectDb']) != ""){
          $selectDb = $this->request['selectDb'];
       }
-//echo "<pre>";print_r($this->request);echo "</pre>";    return;
-      $conn = new SqlCatalogDb($selectDb, $this->srv, $this->usr,$this->pwd);
-      if ($this->request['type'] == 'findSrv') {
-         $arrResult = $conn->findDB();
-      }elseif ($this->request['type'] == 'sqlResult') {
+
+      $conn = new SqlCatalogDb($selectDb, $this->srv, $this->usr, $this->pwd);
+      if($this->request['type'] == 'findSrv'){
+         $arrResult = $conn->getDB();
+         //$arrResult2 = $conn->getReservedWord();
+         //$arrResult = array_merge($arrResult,$arrResult2);
+      }elseif($this->request['type'] == 'sendSql'){
          $arrResult = $conn->getTblResult($this->request['strSql']);
-      }elseif ($this->request['type'] == 'explainSql') {
-         $arrResult = $conn->getExplainTables($this->request['strSql']);         
-      }elseif ($this->request['type'] == 'showTbl') {
-         $arrResult = $conn->getShwoTables();
+      }elseif($this->request['type'] == 'explainSql'){
+         $arrResult = $conn->getExplainTables($this->request['strSql']);
+      }elseif($this->request['type'] == 'showTbl'){
+         $arrResult = $conn->getShowTables();
+      }elseif($this->request['type'] == 'showHlp'){
+         $arrResult = $conn->getShowHelp();
+      }elseif($this->request['type'] == 'showListHelp'){
+         $arr = explode(':', $this->request['showListHelp']);
+         $arrResult = $conn->getShowExpHelp($arr[0]);
       }
       ob_clean();
       echo json_encode($arrResult);
    }
-   
+
    /**
     * manipulate xml
     */
    private function requestXml()
    {
-      $strSql = ""; $strTitle = "";
-      if(isset($this->request['strSql'])){$strSql = $this->request['strSql'];}
-      if(isset($this->request['title'])){$strTitle = $this->request['title'];}
-      $conn = new SqlCatalogXml($strSql, $strTitle);       
-      
-      if ($this->request['type'] == 'addItem'
-         && isset($this->request['strSql']) && $this->request['strSql'] != "") {
+      $strSql = "";
+      $strTitle = "";
+      if(isset($this->request['strSql'])){
+         $strSql = $this->request['strSql'];
+      }
+      if(isset($this->request['title'])){
+         $strTitle = $this->request['title'];
+      }
+      $conn = new SqlCatalogXml($strSql, $strTitle);
+
+      if($this->request['type'] == 'addItem' && isset($this->request['strSql']) && $this->request['strSql'] != ""){
          $conn->addItem($this->request['addRadio']);
-
-      } elseif ($this->request['type'] == 'addGroup') {
+      }elseif($this->request['type'] == 'addGroup'){
          $conn->addGroup();
-
-      } elseif ($this->request['type'] == 'delGroup') {
+      }elseif($this->request['type'] == 'delGroup'){
          $arr = $this->loadGroups($this->request);
          $arrGrp = $arr[0];
          $arrItem = $arr[1];
@@ -196,7 +205,7 @@ class SqlCatalog {
          }
       }
    }
-   
+
    /**
     * change view theme
     */
@@ -205,7 +214,7 @@ class SqlCatalog {
       $f = new ManageFiles();
       $f->saveConf($this->request, 1);
    }
-           
+
    /**
     * desglose array
     * @param array $request
@@ -216,16 +225,18 @@ class SqlCatalog {
       $arrGrp = array();
       $arrItem = array();
       $grp = "";
-      foreach($request as $k=>$val){
-         if($val!='on'){continue;}
-         $arr = explode("_",$k);                  
-         if($arr[0]=='grp'){
-           $arrGrp[$arr[1]] = $arr[1];
-           $grp = $arr[1];
-           continue;
+      foreach($request as $k => $val){
+         if($val != 'on'){
+            continue;
          }
-         if($arr[0]=='itemGrp' && $arr[1]==$grp){
-           continue;
+         $arr = explode("_", $k);
+         if($arr[0] == 'grp'){
+            $arrGrp[$arr[1]] = $arr[1];
+            $grp = $arr[1];
+            continue;
+         }
+         if($arr[0] == 'itemGrp' && $arr[1] == $grp){
+            continue;
          }else{
             $arrItem[$arr[1]][] = $arr[2];
          }
@@ -233,6 +244,5 @@ class SqlCatalog {
       }
       return array($arrGrp, $arrItem);
    }
+
 }
-
-

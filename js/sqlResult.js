@@ -1,3 +1,8 @@
+/**
+ * @author Patricia Mariaca Hajducek (axolote14)
+ * @version 1.0.3
+ * @license http://opensource.org/licenses/MIT
+ */
 ;(function(MoreTabs, $, undefined) {
    var numTab = 1;
    var idDivContainer = '';
@@ -26,7 +31,7 @@
     */
    MoreTabs.getTabActive = function(type){
       return tabActive(type);
-   }
+   };
    
    function tabActive(type){
       var tabActive = $('ul#'+idDivContainer+'resultTab li.active a');
@@ -77,7 +82,7 @@
          'aLengthMenu': [[5, 10, 15, 25, 50, 100, -1], [5, 10, 15, 25, 50, 100, 'All']]
       });
       $( "div.DTTT a" ).addClass( "input-sm" );
-   }
+   };
    
    MoreTabs.sendError = function(error){
       tabActive('oResultError').empty();

@@ -1,6 +1,7 @@
 <?php
+
 /**
- * CatalogDb: connect and search in database
+ * SqlCatalogDb: connect and search in database
  * @author axolote14
  */
 class SqlCatalogDb {
@@ -19,22 +20,22 @@ class SqlCatalogDb {
     * @param string $user - user name
     * @param string $pass - user password
     */
-   function __construct($db="", $srv = "", $user = "", $pass = "")
+   function __construct($db = "", $srv = "", $user = "", $pass = "")
    {
       $error = new CustomError();
       set_error_handler(array($error, 'errorHandler'));
-      
+
       $f = new ManageFiles();
       $flg = $f->findConf();
       $arrHost = $f->findHost();
 
-      if($flg==0){
+      if($flg == 0){
          // from user
          $arrNameHost[] = "";
          $this->srv = $srv;
          $this->user = $user;
          $this->pass = $pass;
-      }elseif($flg==3){
+      }elseif($flg == 3){
          // from config file
          $arrNameHost[] = $arrHost[0]['name']; // ETIQUETA
          $this->srv = $arrHost[0]['srv'];
@@ -46,16 +47,15 @@ class SqlCatalogDb {
          $this->srv = $srv;
          $this->user = $user;
          $this->pass = $pass;
-         if($arrHost[0]['srv']!=""){
+         if($arrHost[0]['srv'] != ""){
             $this->srv = $arrHost[0]['srv'];
          }
-         if($arrHost[0]['user']!=""){
+         if($arrHost[0]['user'] != ""){
             $this->user = $arrHost[0]['user'];
          }
-         if($arrHost[0]['pass']!=""){
+         if($arrHost[0]['pass'] != ""){
             $this->pass = base64_decode($arrHost[0]['pass']);
          }
-         
       }
       $this->db = $db;
       $this->arrNameHost = $arrNameHost;
@@ -74,11 +74,10 @@ class SqlCatalogDb {
       $this->user = $user;
       $this->pass = $pass;
       $r = $this->connect();
-      if(!$r){return $r;}
       $this->close();
       return true;
    }
-   
+
    /**
     * getter
     * @return array
@@ -87,14 +86,13 @@ class SqlCatalogDb {
    {
       return $this->arrNameHost;
    }
-   
+
    /**
     * create connection
     * @return boolean
     */
    private function connect()
    {
-      if($this->srv==""){return false;}      
       $mysqli = new mysqli($this->srv, $this->user, $this->pass, $this->db);
       // verificar coneccion 
       if(mysqli_connect_errno()){
@@ -103,7 +101,7 @@ class SqlCatalogDb {
       $this->mysqli = $mysqli;
       return true;
    }
-   
+
    /**
     * close connection
     */
@@ -117,16 +115,21 @@ class SqlCatalogDb {
     * @param string $sql - query string
     * @return array - query result
     */
-   private function mySql($sql)
+   private function mySql($sql, $db = "")
    {
+      if($db == ""){
+         $db = $this->db;
+      }
       $r = $this->connect();
-      if(!$r){return;}
-      $this->mysqli->select_db($this->db);
+      if(!$r){
+         return;
+      }
+      $this->mysqli->select_db($db);
       $result = $this->findQuery($sql);
       $this->close();
       return $result;
    }
-   
+
    /**
     * convert an array the query result
     * @param string $sql - query string
@@ -150,7 +153,7 @@ class SqlCatalogDb {
             if(!is_null($this->mysqli->info)){
                $arrInfo[] = $this->mysqli->info;
             }else{
-               $arrInfo[] = "<pre>".var_export($result, true)."</pre>";
+               $arrInfo[] = "<pre>" . var_export($result, true) . "</pre>";
             }
          }else{
             $numRows = "numRows: " . $result->num_rows;
@@ -171,52 +174,23 @@ class SqlCatalogDb {
          }
       }
       //$this->mysqli->query('set profiling=0');
-    
+
       $error = mysqli_error($this->mysqli);
       return array(
-          'info' => $arrInfo, 
+          'info' => $arrInfo,
           'row' => $rows,
           'numcols' => $numcols,
           'numRows' => $numRows,
           'error' => $error);
    }
-   
+
    /**
     * list of databases
     * @return arrray - list of databases and host name
     */
-   public function findDB()
+   public function getDB()
    {
-      $arrBases = array();
-      $r = $this->connect();
-      if(!$r){return;}
-      $result = $this->mysqli->query("show databases;");
-      while($row = $result->fetch_row()){
-         $arrBases[] = $row[0];
-      }
-      $this->mysqli->close();
-      return $arrBases;
-      return array($arrBases, $this->srv);
-   }
-   
-   /**
-    * explain from sql statment
-    * @param string $sql - query string
-    * @return array - query result
-    */
-   public function getExplainTables($sql)
-   {
-      return $this->getTblResult("explain " . $sql);
-   }
-
-   /**
-    * 
-    * @param string $sql - query string
-    * @return array - query result
-    */
-   public function getShwoTables()
-   {
-      return $this->getTblResult("show tables");
+      return $this->mySql("show databases;");
    }
 
    /**
@@ -228,4 +202,64 @@ class SqlCatalogDb {
    {
       return $this->mySql($sql);
    }
+
+   /**
+    * explain from sql statment
+    * @param string $sql - query string
+    * @return array - query result
+    */
+   public function getExplainTables($sql)
+   {
+      return $this->mySql("EXPLAIN " . $sql);
+   }
+
+   /**
+    * 
+    * @param string $sql - query string
+    * @return array - query result
+    */
+   public function getShowTables()
+   {
+      return $this->mySql("SHOW tables");
+   }
+
+   /**
+    * 
+    * @param string $sql - query string
+    * @return array - query result
+    */
+   public function getShowHelp()
+   {
+      $sql = "SELECT CONCAT(t.name, ': ', k.name,'  (', c.name,')' ) as name
+FROM  help_keyword as k
+JOIN help_relation as r ON k.help_keyword_id=r.help_keyword_id
+JOIN   help_topic as t ON r.help_topic_id=t.help_topic_id
+JOIN  help_category as c ON t.help_category_id=c.help_category_id
+ORDER BY t.name "; // WHERE t.help_category_id in (24, 16, 28)
+      return $this->mySql($sql, "mysql");
+   }
+
+   public function getShowExpHelp($topic)
+   {
+      $sql = "SELECT description FROM help_topic WHERE  name='{$topic}' ";
+      return $this->mySql($sql, "mysql");
+   }
+
+   /**
+    * 
+    * @param string $sql
+    * @return array - query result
+    */
+   public function getReservedWord()
+   {
+      $sql = "SELECT k.name
+FROM  help_keyword as k
+JOIN help_relation as r ON k.help_keyword_id=r.help_keyword_id
+JOIN   help_topic as t ON r.help_topic_id=t.help_topic_id
+JOIN  help_category as c ON t.help_category_id=c.help_category_id
+WHERE t.help_category_id=28 
+GROUP BY k.name "; // #16, 24
+      return $this->mySql($sql, "mysql");
+   }
+
 }

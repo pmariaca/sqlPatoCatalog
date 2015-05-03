@@ -150,11 +150,9 @@ h3.highlight  {
 	padding-left:1px;
 }
 
-footer {
-	height:50px;
+footer, .navbar-fixed-bottom {
   	background-color:#dfdfdf;
   	color:#888;
-  	margin-top:20px;
 }
 
 @media (min-width: 992px) {

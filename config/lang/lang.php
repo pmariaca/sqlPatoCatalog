@@ -20,8 +20,10 @@ switch ($lang){
       define('MSG_1','escribir busqueda');
       define('MSG_2','etiqueta para el sql');
       define('SHOW_MORE_TABS','Ver extra tabs');
-      define('HIDE_MORE_TABS','Ocultar extra tabs');
-      
+      define('HIDE_MORE_TABS','Ocultar extra tabs');      
+      define('SHOW_PROCESSLIST','Ver procesos');
+      define('HIDE_PROCESSLIST','Ocultar procesos');
+
       define('FILE_NOT_EXIST','No existe el archivo');
       define('DIR_NOT_EXIST','No existe el directorio');
       define('DIR_NOT_WRITABLE','No se puede escribir en el directorio, verifique permisos');
@@ -46,6 +48,8 @@ switch ($lang){
       define('MSG_2','name for sql');
       define('SHOW_MORE_TABS','Show extra tabs');
       define('HIDE_MORE_TABS','Hide extra tabs');
+      define('SHOW_PROCESSLIST','Show proccess');
+      define('HIDE_PROCESSLIST','Hide proccess');
      
       define('FILE_NOT_EXIST','File doesn\'t exist');
       define('DIR_NOT_EXIST','Directory doesn\'t exists ');

@@ -24,52 +24,46 @@
     padding-right: 2px;
     margin: 0px;
 }
-/*------------------------- nav div --------------------------------------*/ 
+/*------------------------- nav div / menu div --------------------------------------*/ 
 #mmodal ul{
    margin-bottom: 15px;
 }
-#accordionMod .panel-heading{ 
+.myaccordion .panel-heading{ 
     padding: 5px 5px 5px 5px;
 }
+.myaccordion .panel-body, .myaccordion .list-group, .myaccordion .panel-body input, .myaccordion .panel-heading input, 
+.divShow .list-group, .divShow .list-group input{
+   padding: 0px !important;
+   margin: 0px !important;
+}
+.myaccordion .list-group-item, .divShow .list-group-item, .divShow .option-name  {
+   padding: 0px !important;
+   margin: 0px !important;
+   border: 1px solid transparent;
+}
+#accordionMod .list-group-item  {
+   padding: 0px 0px 0px 50px !important;
+}
+#accordionMod{
+   max-height: 355px;
+   height: 35%;
+   overflow-y: scroll;
+}
+
 #accordionMod .panel-heading a{ 
     text-decoration: none;
 }
 #accordionMod .panel-group{ 
     margin-bottom: 5px;
 }
-#accordionMod .panel-body, #accordionMod .list-group, #accordionMod .panel-body input, #accordionMod .panel-heading input  {
-   padding: 0px !important;
-   margin: 0px !important;
-}
-#accordionMod .list-group-item  {
-   padding: 0px 0px 0px 50px !important;
-   margin: 0px !important;
-   border: 1px solid transparent;
-}
+
 /*------------------------- main div --------------------------------------*/ 
-#explainSql{
+#explainSql, #sendSql, #showProcessList, #showHelp{
    margin-left: 15px;
 }
-#sendSql{
-   margin-left: 15px;
-}
-/*------------------------- menu div --------------------------------------*/ 
-#accordionN .panel-heading { 
-    padding: 5px 5px 5px 5px;
-}
-#accordionN .panel-body, #accordionN .list-group, #accordionN .panel-body input, #accordionN .panel-heading input,
-#divShow .list-group, #divShow .list-group input {
-   padding: 0px !important;
-   margin: 0px !important;
-}
-#accordionN .list-group-item, #divShow .list-group-item, #divShow .option-name {
-   padding: 0px !important;
-   margin: 0px !important;
-   border: 1px solid transparent;
-}
- 
+
 /*------------------------- menu2 div -------------------------------------*/ 
-#btnAddSql, #addSql{
+#btnAddItem, #addItem{
    margin-bottom: 10px;
 }
 #accordionA .panel-body {
@@ -83,19 +77,31 @@
    padding-bottom: 5px;
    border: 1px solid transparent;
 }
-#divShow .panel-heading {
+
+.divShow .panel-heading {
    padding-top: 0px;
    padding-bottom: 0px;
 }
-#divShow .panel-body{
+.divShow .panel-body{
    padding: 10px 15px 8px 15px;
 }
-#divShow .form-control {
+.divShow .form-control {
    width: 100%;
+}
+#navHelp{
+   width: 100%;
+}
+#divExpainHelp{
+   max-height: 155px;
+   height: 15%;
+   overflow-y: scroll;
 }
 .divMsgDb, .divExplainError, .divSelectDb, #resultShow2{
    display: none;
 }
 #showMoreTab{
-   margin-top: 5px;
+   margin-top: 10px;
+}
+#divShow, #navHelp, #navProcList, #navBottom, #showProcessList{
+   display: none;
 }
