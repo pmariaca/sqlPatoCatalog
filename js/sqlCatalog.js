@@ -207,7 +207,7 @@ $(document).ready(function() {
                beforeFindSrv(id);
             }else if(id == 'sendSql'){
                startLoad(id);      
-               hideMsgs(0);
+               hideMsgs(MoreTabs.getTabActive('oResultError'));
             }else if(id == 'explainSql' || id == 'addItem' || id == 'saveSrv'
                || id == 'delGroup' || id == 'addGroup' || id == 'newView'){
                hideMsgs(1);
