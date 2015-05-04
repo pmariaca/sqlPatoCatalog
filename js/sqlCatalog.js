@@ -6,6 +6,7 @@
 $(document).ready(function() {
    var urlCatalog = "includes/SqlCatalog.inc.php?";
    var flgIni = 0;
+   var tabSendSql; 
    MoreTabs.init('resultShow2');
    MoreTabs.init('resultShow');
 
@@ -14,11 +15,12 @@ $(document).ready(function() {
       if($.trim($("#srv").val()) == "" || $.trim($("#usr").val()) == "" || $.trim($("#pwd").val()) == "")return;
       doAjax('db', this.id, 'json', $("#form_nav").serializeArray());
    });
-
+   
    $("#sendSql").on('click', function() {
       if($.trim(MoreTabs.getTabActive('oTextarea').val()) == "" || $("#selectDb").val() == null)return;
       var data = $("#form_content .selectDb,#form_nav").serializeArray();
       data.push(MoreTabs.getTabActive('oStrSql'));
+      tabSendSql = MoreTabs.getTabActive('sIdTab');
       doAjax('db', this.id, 'json', data);
    });
 
@@ -194,6 +196,7 @@ $(document).ready(function() {
             sendType = arguments[4];
          }
       }
+
       $.ajax({
          url: urlCatalog + "go=" + go + "&type=" + sendType,
          type: "POST",
@@ -203,8 +206,8 @@ $(document).ready(function() {
             if(id == 'findSrv'){
                beforeFindSrv(id);
             }else if(id == 'sendSql'){
-               startLoad(id);
-               hideMsgs(MoreTabs.getTabActive('oResultError'));
+               startLoad(id);      
+               hideMsgs(0);
             }else if(id == 'explainSql' || id == 'addItem' || id == 'saveSrv'
                || id == 'delGroup' || id == 'addGroup' || id == 'newView'){
                hideMsgs(1);
@@ -260,9 +263,9 @@ $(document).ready(function() {
 
    function successSendSql(id, json) {
       stopLoad(id);
-      $('#' + MoreTabs.getTabActive('sIdTab') + ' .divResult').html('<table class="table table-striped table-hover" id="' + MoreTabs.getTabActive('sIdTab') + '_tblResult"></table>');
+      $('#' + tabSendSql + ' .divResult').html('<table class="table table-striped table-hover" id="' + tabSendSql + '_tblResult"></table>');      
       if(msgError(id, json))return;
-      MoreTabs.createResult(json);
+      MoreTabs.createResult(json, tabSendSql);
    }
 
    function successExplainSql(id, json) {
@@ -334,7 +337,7 @@ $(document).ready(function() {
 
       if($.trim(json.error) != ''){
          if(id == "sendSql"){
-            MoreTabs.sendError(json.error);
+            MoreTabs.sendError(json.error, tabSendSql);
          }else if(id == "explainSql"){
             $('.divExplainError').empty();
             $('.divExplainError').append(json.error);

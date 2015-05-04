@@ -58,17 +58,15 @@
     * @param {JSON} json
     * @returns {undefined}
     */
-   MoreTabs.createResult = function(json){
+   MoreTabs.createResult = function(json, tabSendSql){
       // clean
-      $('#'+tabActive('sIdTab')+' .divResult').html('<table class="table table-striped table-hover" id="' + tabActive('sIdTab') + '_tblResult"></table>');
+      $('#'+tabSendSql+' .divResult').html('<table class="table table-striped table-hover" id="' + tabSendSql + '_tblResult"></table>');
       var header = [];
       $.each(json.info, function(k, v) {
          header[k] = {"title": v};
       });
-      //tabActive('oResultInfo').html(json.numRows);
-      //tabActive('oResultInfo').show();
       // create table
-      $('#'+tabActive('sIdTab')+'_tblResult').dataTable({
+      $('#'+tabSendSql+'_tblResult').dataTable({
           'dom': 'T<"clear">lfrtip',
           'tableTools': {
           'sSwfPath': 'dist/DataTables/extensions/TableTools/swf/copy_csv_xls_pdf.swf',
@@ -81,14 +79,14 @@
          'iDisplayLength': 10,
          'aLengthMenu': [[5, 10, 15, 25, 50, 100, -1], [5, 10, 15, 25, 50, 100, 'All']]
       });
-      $( "div.DTTT a" ).addClass( "input-sm" );
+      $( '#'+tabSendSql+' div.DTTT a' ).addClass( "input-sm" );
    };
    
-   MoreTabs.sendError = function(error){
-      tabActive('oResultError').empty();
-      tabActive('oResultError').append(error);
-      tabActive('oResultError').show();
-      //tabActive('oResultInfo').hide();
+   MoreTabs.sendError = function(error, tabSendSql){
+      tabSendSql = $('#'+tabSendSql+' .divResultError');
+      tabSendSql.empty();
+      tabSendSql.append(error);
+      tabSendSql.show();
    }
    
    /**
@@ -132,6 +130,7 @@
    }
    
    $(document).on("click", ".tabRst", function() {
+      $(window).trigger('resize');
       idDivContainer = $(this).closest('div').attr('id');
    });
    
