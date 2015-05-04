@@ -26,8 +26,8 @@ $(document).ready(function() {
       if($.trim(MoreTabs.getTabActive('oTextarea').val()) == "" || $("#selectDb").val() == null)return;
       var data = $("#form_content .selectDb,#form_nav").serializeArray();
       data.push(MoreTabs.getTabActive('oStrSql'));
-      $('#mdlExplain').modal('show');
       doAjax('db', this.id, 'json', data);
+      $('#mdlExplain').modal('show');
    });
 
    $('#mdlExplain').on('show.bs.modal', function() {
@@ -315,7 +315,8 @@ $(document).ready(function() {
       html = html.replace(strUrl, '<strong><a href="' + strUrl + '" target="_blank">' + strUrl + '</a></strong>');
       html = html.replace(/\[/g, "<strong>[</strong>");
       var arr = $("#divShowHelp li.selected .option-name").text().split(':');
-      $.each([']', '{', '}', $.trim(arr[1])], function(i, value) {
+      arr = arr[1].split('(');
+      $.each([']', '{', '}', $.trim(arr[0])], function(i, value) {
          var search = new RegExp(value, 'g');
          html = html.replace(search, "<strong>" + value + "</strong>");
       });
