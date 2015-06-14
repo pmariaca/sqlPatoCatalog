@@ -151,8 +151,12 @@ h3.highlight  {
 }
 
 footer, .navbar-fixed-bottom {
-  	background-color:#dfdfdf;
-  	color:#888;
+      background-color:#77ccdd;
+      color:#333;
+}
+
+.navbar-fixed-bottom a{
+    color: #4679bd;
 }
 
 @media (min-width: 992px) {
