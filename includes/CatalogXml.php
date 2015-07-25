@@ -1,14 +1,16 @@
 <?php
+namespace Catalog;
+
 /**
  * CatalogXml: manipulate xml file
  * @author axolote14
  */
-class SqlCatalogXml {
+class CatalogXml {
 
-   private $file_name = "sqlCatalog.xml";
-   private $file = "";
-   private $strSql = "";
-   private $strTitle = "";
+   private $_fileName = "sqlCatalog.xml";
+   private $_file = "";
+   private $_strSql = "";
+   private $_strTitle = "";
 
    /**
     * 
@@ -19,20 +21,14 @@ class SqlCatalogXml {
    {
       $d = PATH_SQLCATALOG;
       $dir = $d.DIRECTORY_SEPARATOR."files";
-      $this->file = $dir.DIRECTORY_SEPARATOR.$this->file_name;
-      $this->strSql = $strSql;
-      $this->strTitle = $strTitle;
+      $this->_file = $dir.DIRECTORY_SEPARATOR.$this->_fileName;
+      $this->_strSql = $strSql;
+      $this->_strTitle = $strTitle;
       
-      $error = new customError(array($this->file));
-      set_error_handler(array($error, 'errorHandler'));
+      set_error_handler(array(new CustomError(array($this->_file)), 'errorHandler'));
       
-      if(file_exists($dir)){
-         if(!is_writable($dir)){
-         }else{
-            if(!file_exists($this->file)){
-               $this->newCatalog();
-            }
-         }
+      if(file_exists($dir) && is_writable($dir) && !file_exists($this->_file)){
+        $this->newCatalog();           
       }
    }
 
@@ -41,7 +37,7 @@ class SqlCatalogXml {
     */
    public function newCatalog()
    {
-      $xml = new DOMDocument("1.0", "utf-8");
+      $xml = new \DOMDocument("1.0", "utf-8");
       $catalog = $xml->createElement("catalog");
       $xml->appendChild($catalog);
 
@@ -71,7 +67,7 @@ class SqlCatalogXml {
       }
       $xml->formatOutput = true;
       //echo "<xmp>". $xml->saveXML() ."</xmp>";
-      $xml->save($this->file) or die("");
+      $xml->save($this->_file) or die("");
    }
 
    /**
@@ -79,15 +75,15 @@ class SqlCatalogXml {
     */
    public function addGroup()
    {
-      $xml = new DOMDocument();
+      $xml = new \DOMDocument();
       $xml->formatOutput = true;
       $xml->preserveWhiteSpace = false;
-      $xml->load($this->file) or die("");
+      $xml->load($this->_file) or die("");
 
       $catalog = $xml->documentElement;
       $nNodes = $catalog->childNodes->length;
       //++++++++++++++++++++++++++++++++++++++++++++
-      $grp = array('id' => $nNodes + 1, 'name' => $this->strTitle);    
+      $grp = array('id' => $nNodes + 1, 'name' => $this->_strTitle);    
       $group = $xml->createElement("group");
       $groupAttr = $xml->createAttribute("id");
       $groupAttr->value = $grp['id'];
@@ -98,7 +94,7 @@ class SqlCatalogXml {
       $catalog->appendChild($group);
       //++++++++++++++++++++++++++++++++++++++++++++
       //echo "<xmp>". $xml->saveXML() ."</xmp>";
-      $xml->save($this->file) or die("");
+      $xml->save($this->_file) or die("");
    }
 
    /**
@@ -107,31 +103,31 @@ class SqlCatalogXml {
     */
    public function addItem($idGroup = 0)
    {
-      $strSql = $this->strSql;
+      $strSql = $this->_strSql;
       $strSql = str_replace("\\", "&#92;", $strSql);
       $strSql = str_replace('"', '&quot;', $strSql);
       $strSql = str_replace("'", "\'", $strSql);
       $strSql = str_replace("\r\n", "&#182;", $strSql);
       $strSql = str_replace("\n", "&#182;", $strSql);
 
-      $xml = new DOMDocument();
+      $xml = new \DOMDocument();
       $xml->formatOutput = true;
       $xml->preserveWhiteSpace = false;
-      $xml->load($this->file) or die("");
-      $catalog = $xml->documentElement;
+      $xml->load($this->_file) or die("");
+      //$catalog = $xml->documentElement;
 
       $grupoN = $xml->getElementsByTagName("group")->length;
       if($idGroup == 0 || $idGroup > $grupoN){
          $idGroup = $grupoN;
       }
-      $xpath = new DOMXpath($xml);
+      $xpath = new \DOMXpath($xml);
       $find = $xpath->query("//group[@id='".$idGroup."']");
       //$findNode = $catalog->lastChild; // ultimo grupo
       $findNode = $find->item(0);
       $findNodePlace = $findNode->childNodes->item($findNode->childNodes->length);
 
       //++++++++++++++++++++++++++++++++++++++++++++
-      $grp = array('strTitle' => $this->strTitle, 'strSql' => $strSql);
+      $grp = array('strTitle' => $this->_strTitle, 'strSql' => $strSql);
       $item = $xml->createElement("item");
       $title = $xml->createElement("title");
       $sql = $xml->createElement("sql");
@@ -145,7 +141,7 @@ class SqlCatalogXml {
 
       $findNode->insertBefore($item, $findNodePlace);
       //echo "<xmp>". $xml->saveXML() ."</xmp>";
-      $xml->save($this->file) or die("");
+      $xml->save($this->_file) or die("");
    }
       
    /**
@@ -155,19 +151,19 @@ class SqlCatalogXml {
     */
    public function deleteGroup($arrGroup)
    {
-      $xml = new DOMDocument();
+      $xml = new \DOMDocument();
       $xml->formatOutput = true;
       $xml->preserveWhiteSpace = false;
-      $xml->load($this->file) or die("");
+      $xml->load($this->_file) or die("");
       
-      $xpath = new DOMXpath($xml);
+      $xpath = new \DOMXpath($xml);
       foreach($arrGroup as $idGroup){
          $find = $xpath->query("//group[@id='".$idGroup."']");
          $findNode = $find->item(0);
          $findNode->parentNode->removeChild($findNode);
       }
       //echo "<xmp>". $xml->saveXML() ."</xmp>";
-      $xml->save($this->file) or die("");
+      $xml->save($this->_file) or die("");
       $this->reorderGroup();
       return true;
    }
@@ -178,10 +174,10 @@ class SqlCatalogXml {
     */
    public function deleteItem($arrItem)
    {
-      $xml = new DOMDocument();
+      $xml = new \DOMDocument();
       $xml->formatOutput = true;
       $xml->preserveWhiteSpace = false;
-      $xml->load($this->file) or die("");
+      $xml->load($this->_file) or die("");
  
       $arrItem_x = array();
       foreach($arrItem as $idGroup=>$var){  
@@ -189,7 +185,7 @@ class SqlCatalogXml {
          $arrItem_x[$idGroup] = $var;
       }
 
-      $xpath = new DOMXpath($xml);
+      $xpath = new \DOMXpath($xml);
       foreach($arrItem_x as $idGroup=>$var){        
          $find = $xpath->query("//group[@id='".$idGroup."']");
          $findNode = $find->item(0);
@@ -199,7 +195,7 @@ class SqlCatalogXml {
          }
       }
       //echo "<xmp>". $xml->saveXML() ."</xmp>";
-      $xml->save($this->file) or die("");  
+      $xml->save($this->_file) or die("");  
    }
 
    /**
@@ -208,7 +204,7 @@ class SqlCatalogXml {
     */
    public function readCatalog()
    {
-      $catalog = simplexml_load_file($this->file, 'SimpleXMLElement', LIBXML_NOCDATA);
+      $catalog = simplexml_load_file($this->_file, 'SimpleXMLElement', LIBXML_NOCDATA);
       if(!is_object($catalog)){
          return array();
       }
@@ -225,8 +221,7 @@ class SqlCatalogXml {
          }
          $itm = 0;
          foreach($catalog->xpath("//group[@id='".$id."']/item") as $item){
-            $strSql = $item->sql;
-            $strSql = str_replace("&#92;", "\\\\", $strSql);
+            $strSql = str_replace("&#92;", "\\\\", $item->sql);
             $strSql = str_replace("&#182;", "\\n", $strSql);
             $arrAccordion[$collapse]['item'][$itm][0] = (string) $item->title;
             $arrAccordion[$collapse]['item'][$itm][1] = $strSql;
@@ -244,10 +239,10 @@ class SqlCatalogXml {
     */
    private function reorderGroup()
    {
-      $xml = new DOMDocument();
+      $xml = new \DOMDocument();
       $xml->formatOutput = true;
       $xml->preserveWhiteSpace = false;
-      $xml->load($this->file) or die("");
+      $xml->load($this->_file) or die("");
       
       $catalog = $xml->getElementsByTagName( "group" ); 
       $id = 1;
@@ -257,7 +252,7 @@ class SqlCatalogXml {
          $ctg->setAttribute("id", $id++);
       }
       //echo "<xmp>". $xml->saveXML() ."</xmp>";
-      $xml->save($this->file) or die("");
+      $xml->save($this->_file) or die("");
    }
    
 }

@@ -1,6 +1,6 @@
 /**
  * @author Patricia Mariaca Hajducek (axolote14)
- * @version 1.0.3
+ * @version 1.1
  * @license http://opensource.org/licenses/MIT
  */
 ;(function(MoreTabs, $, undefined) {
@@ -111,15 +111,6 @@
       }else{
          var div1 = $('<div>').attr('id', idDivContainer+'tab_' + numTab).addClass('tab-pane');
       }
-      /*
-       // tool-bar
-       var div2 = $('<div>').addClass('divToolBar').appendTo(div1); 
-       var btn1 = $('<button>').attr('type', 'button').addClass('btn btn-default bigger').appendTo(div2); 
-       $('<span>').attr('aria-hidden', 'true').addClass('glyphicon glyphicon-zoom-in').appendTo(btn1);
-       
-       var btn2 = $('<button>').attr('type', 'button').addClass('btn btn-default smoller').appendTo(div2);
-       $('<span>').attr('aria-hidden', 'true').addClass('glyphicon glyphicon-zoom-out').appendTo(btn2);
-       */
       $('<textarea>').attr('rows', '5').attr('placeholder', 'SELECT * FROM').addClass('strSql').appendTo(div1);
       $('<div>').addClass('alert alert-warning divResultError').appendTo(div1);
       //$('<p>').addClass('badge divResultInfo').appendTo(div1);
@@ -155,22 +146,6 @@
       $(this).parents('li').remove('li');
       $(tabId).remove();
       $('#'+idDivContainer+'resultTab a:last').tab('show');
-   });
-
-   $(document).on('click', '.bigger', function() {
-      var curSize = parseInt(tabActive('oTextarea').css('font-size'));
-      if(curSize <= 20){
-         curSize = curSize + 2;
-      }
-      tabActive('oTextarea').css('font-size', curSize);
-   });
-
-   $(document).on('click', '.smoller', function() {
-      var curSize = parseInt(tabActive('oTextarea').css('font-size'));
-      if(curSize > 15){
-         curSize = curSize - 2;
-      }
-      tabActive('oTextarea').css('font-size', curSize);
    });
 
 }(window.MoreTabs = window.MoreTabs || {}, jQuery));

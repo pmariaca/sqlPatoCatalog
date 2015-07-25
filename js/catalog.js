@@ -1,10 +1,10 @@
 /**
  * @author Patricia Mariaca Hajducek (axolote14)
- * @version 1.0.3
+ * @version 1.1
  * @license http://opensource.org/licenses/MIT
  */
 $(document).ready(function() {
-   var urlCatalog = "includes/SqlCatalog.inc.php?";
+   var urlCatalog = "includes/Catalog.php?";
    var flgIni = 0;
    var tabSendSql; 
    MoreTabs.init('resultShow2');
@@ -185,6 +185,11 @@ $(document).ready(function() {
       $('#pwd').hide();
       doAjax('db', 'findSrv', 'json', $("#form_nav").serializeArray());
    }
+
+   $(".strSql").asuggest(suggests, {
+      'minChunkSize': 2,
+      'stopSuggestionKeys': [$.asuggestKeys.RETURN],
+   });
    //+++++++++++++++++++++++++++++++++++++++++++++++++++  
 
    function doAjax(go, id, dataType, data) {
@@ -240,8 +245,13 @@ $(document).ready(function() {
                successShowListHelp(id, json);
             }
          },
-         error: function() {
-            //$('#info').html('<p>ups, an error has occurred</p>');
+         error: function(e) {
+            stopLoad(1);
+            console.log('ups, an error has occurred');
+            console.log(e.responseText);
+            $('.divMsgDb').empty();
+            $('.divMsgDb').append('ups, an error has occurred'+ e.responseText);
+            $('.divMsgDb').show();
          },
       });
    }
@@ -281,9 +291,11 @@ $(document).ready(function() {
          'columns': header,
          'scrollX': true,
          'searching': false,
-         'paging': false,
-         'ordering': false,
-         'info': false
+         'paging': true,
+         'ordering': true,
+         'info': true,
+         'iDisplayLength': 5,
+         'aLengthMenu': [[5, 10,-1], [5, 10, 'All']]
       });
    }
 
@@ -331,11 +343,14 @@ $(document).ready(function() {
       if($.trim(data) == "null")return true;
 
       var json = data;
+      try{
       if((id == "saveSrv" || id == 'delGroup' || id == "addItem" || id == 'newView')
          && $.type(data) === "string" && $.trim(data) != ""){
          json = JSON.parse(data);
       }
-
+      }catch(err){
+        json = {error:data};
+      }
       if($.trim(json.error) != ''){
          if(id == "sendSql"){
             MoreTabs.sendError(json.error, tabSendSql);

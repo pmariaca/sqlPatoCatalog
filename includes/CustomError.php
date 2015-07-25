@@ -1,10 +1,11 @@
 <?php
+namespace Catalog;
 /**
  * Manage errors
  * @author axolote14
  */
 class CustomError {
-   private $arrParams = array();
+   private $_arrParams = array();
    
    /**
     * 
@@ -12,7 +13,7 @@ class CustomError {
     */
    function __construct($arrParams= array())
    {
-      $this->arrParams = $arrParams;
+      $this->_arrParams = $arrParams;
    }
    
    /**
@@ -26,15 +27,15 @@ class CustomError {
    function errorHandler($errno, $errstr, $errfile, $errline)
    {
       if(!(error_reporting() && $errno)){
-         // Este código de error no está incluido en error_reporting
          return;
       }
-
+//echo "--------------".$errno." ".$errstr." ".$errfile." ".$errline." <hr> ";
+      
       switch($errno){
          case E_WARNING:
-            $fnd = strpos ($errfile, "SqlCatalogDb.php");
+            $fnd = strpos ($errfile, "CatalogDb.php");
             if($fnd===false){
-               echo json_encode(array('error'=>DIR_NOT_WRITABLE.": ".$this->arrParams[0]));
+               echo json_encode(array('error'=>DIR_NOT_WRITABLE.": ".$this->_arrParams[0]));
             }else{
                echo json_encode(array('error'=>$errstr));
             }
@@ -44,13 +45,11 @@ class CustomError {
             break;
 
          case ($errno == E_USER_WARNING || $errno == E_USER_NOTICE || $errno == E_STRICT ):
-            break;
-
          case ($errno == E_NOTICE ):
+            echo json_encode(array('error'=>$errno." ".  var_export($this->_arrParams)));
             break;
-
          default:
-            break;
+            throw new \ErrorException($errstr, $errno, 0, $errfile, $errline);
       }
       return true;
    }
