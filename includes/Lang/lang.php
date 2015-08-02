@@ -1,4 +1,6 @@
 <?php
+namespace Catalog\Lang;
+
 $lang = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
 switch ($lang){
    case "es":
@@ -56,4 +58,3 @@ switch ($lang){
       define('DIR_NOT_WRITABLE','Directory is not writable, verify permissions');
       break;
 }
-?>
