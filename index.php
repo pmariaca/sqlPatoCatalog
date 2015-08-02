@@ -1,4 +1,7 @@
 <?php
 include_once ("includes/Catalog.php");
-$app = new Catalog\Catalog();
-$app->renderPage();
+
+\Catalog\Catalog::registerAutoloader();
+
+$app = new Catalog\Catalog($_REQUEST);
+$app->run();

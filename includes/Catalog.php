@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @copyright Copyright (c) Patricia Mariaca Hajducek
  * @license http://opensource.org/licenses/MIT
@@ -25,19 +26,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-namespace Catalog;
-define('PATH_SQLCATALOG', str_replace('\\', '/', realpath(substr(dirname(__FILE__), 0, 0 - strlen('includes')))));
-include_once (PATH_SQLCATALOG . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'lang' . DIRECTORY_SEPARATOR . 'lang.php');
-include_once ("CustomError.php");
-include_once ("view/Page.php");
-include_once ("ManageFiles.php");
-include_once ("CatalogXml.php");
-include_once ("CatalogDb.php");
 
-if(!empty($_REQUEST)){
-   $o = new Catalog($_REQUEST);
-   $o->findTodo();  
-}
+namespace Catalog;
+
+define('PATH_SQLCATALOG', str_replace('\\', '/', realpath(substr(dirname(__FILE__), 0, 0 - strlen('includes')))));
+include_once ("Lang/lang.php");
+
 /* * ************************************************************************************* */
 
 /**
@@ -46,200 +40,257 @@ if(!empty($_REQUEST)){
  * @author Patricia Mariaca Hajducek (axolote14)
  * @version 1.1
  */
-class Catalog {
+class Catalog
+{
 
-   private $_request = array();
-   private $_srv = "";
-   private $_usr = "";
-   private $_pwd = "";
-   private $_page;
+    private $_request = [];
+    private $_srv = "";
+    private $_usr = "";
+    private $_pwd = "";
+    private $_go = "";
+    private $_type = "";
 
-   /**
-    * 
-    * @param array $request
-    */
-   function __construct($request=array())
-   {
-      $this->_request = $request;
-      if(isset($this->_request['srv']) && trim($this->_request['srv']) != ""){
-         $this->_srv = $this->_request['srv'];
-      }
-      if(isset($this->_request['usr']) && trim($this->_request['usr']) != ""){
-         $this->_usr = $this->_request['usr'];
-      }
-      if(isset($this->_request['pwd']) && trim($this->_request['pwd']) != ""){
-         $this->_pwd = $this->_request['pwd'];
-      }
-      if(empty($request)){
-         $this->constructPage();
-      }
-   }
+    /**
+     * Register Catalog's autoloader
+     */
+    public static function registerAutoloader()
+    {
+        spl_autoload_register(__NAMESPACE__."\\Catalog::autoload");
+    }
 
-   public function renderPage()
-   {
-      echo $this->_page->renderPage();
-   }
-   
-   private function constructPage()
-   {
-      $f = new ManageFiles();
-      $arrHost = $f->findConfHost();
-      $iniXml = new CatalogXml();
+    /**
+     * Catalog autoloader
+     */
+    public static function autoload($class)
+    {
+        $prefix = 'Catalog\\';
+        $len = strlen($prefix);
+        if (strncmp($prefix, $class, $len) !== 0) {
+            return;
+        }
 
-      ob_clean();
-      $this->_page = new View\Page($f->findConfView());
-      $this->_page->setPage(array('flg'=>$arrHost['flg'], 'srv'=>$arrHost[0]['srv'], 'usr'=>$arrHost[0]['user']), $iniXml->readCatalog());
-   }
+        $base_dir = PATH_SQLCATALOG.DIRECTORY_SEPARATOR."includes".DIRECTORY_SEPARATOR;
+        $relative_class = substr($class, $len);
 
-   /**
-    * 
-    * @return array
-    */
-   public function findTodo()
-   {
-      if(isset($this->_request['go'])){
-         if($this->_request['go'] == 'db'){
+        $file = $base_dir.str_replace('\\', '/', $relative_class).'.php';
+        if (file_exists($file)) {
+            include_once $file;
+        }
+    }
+
+    /**
+     * 
+     * @param array $request
+     */
+    function __construct($request = [])
+    {
+        $requestPost = filter_input_array(INPUT_POST, $request, FILTER_SANITIZE_STRING);
+        $requestGet = filter_input_array(INPUT_GET, $request, FILTER_SANITIZE_STRING);
+
+        $this->setVar(['srv', 'usr', 'pwd'], $requestPost, $requestGet);
+        $this->setVar(['go', 'type'], $requestGet, $requestPost);
+        $this->cleanArray($requestPost);
+        $this->cleanArray($requestGet);
+
+        $this->_request = array_merge($requestPost, $requestGet);
+    }
+
+    /**
+     * create page
+     */
+    public function run()
+    {
+        if (empty($this->_request)) {
+            // first time
+            $this->constructPage();
+        } else {
+            $this->findTodo();
+        }
+    }
+
+    private function constructPage()
+    {
+        $f = new ManageFiles();
+        $arrHost = $f->findConfHost();
+        $iniXml = new CatalogXml();
+
+        ob_clean();
+        $page = new View\Page($f->findConfView());
+        $page->setPage(
+                [
+            'flg' => $arrHost['flg'],
+            'srv' => $arrHost[0]['srv'],
+            'usr' => $arrHost[0]['user']
+                ], $iniXml->readCatalog()
+        );
+        echo $page->renderPage();
+    }
+
+    /**
+     * 
+     * @return array
+     */
+    private function findTodo()
+    {
+        if ($this->_go == 'db') {
             $this->requestDb();
-            
-         }elseif($this->_request['go'] == 'xml'){
+        } elseif ($this->_go == 'xml') {
             $this->requestXml();
-            
-         }elseif($this->_request['go'] == 'vw'){
+        } elseif ($this->_go == 'vw') {
             $this->requestView();
-         }
-      }
-   }
+        }
+    }
 
-   /**
-    * search databases
-    * @return array
-    */
-   private function requestDb()
-   {
-      if($this->_request['type'] == 'saveSrv'){
-         $save = false;
-         if(isset($this->_request['itemSrv']) && isset($this->_request['itemUsr']) && isset($this->_request['itemPass'])){
-            $conn = new CatalogDb();
-            $save = $conn->testConnection($this->_request['itemSrv'], $this->_request['itemUsr'], $this->_request['itemPass']);
-            
-         }else{
-            $save = true;
-         }
-         if($save===true){
-            $f = new ManageFiles();
-            $f->saveConfHost($this->_request);
-         }
-      }else{
-         $this->jsonRequestDb();
-      }
-   }
+    /**
+     * search databases
+     * @return array
+     */
+    private function requestDb()
+    {
+        if ($this->_type == 'saveSrv') {
+            $save = false;
+            if (isset($this->_request['itemSrv']) && isset($this->_request['itemUsr']) && isset($this->_request['itemPass'])) {
+                $conn = new CatalogDb();
+                $save = $conn->testConnection($this->_request['itemSrv'], $this->_request['itemUsr'], $this->_request['itemPass']);
+            } else {
+                $save = true;
+            }
+            if ($save === true) {
+                $f = new ManageFiles();
+                $f->saveConfHost($this->_request);
+            }
+        } else {
+            $this->jsonRequestDb();
+        }
+    }
 
-   /**
-    * 
-    */
-   private function jsonRequestDb()
-   {
-      $selectDb = "";
-      if(isset($this->_request['selectDb']) && trim($this->_request['selectDb']) != ""){
-         $selectDb = $this->_request['selectDb'];
-      }
+    /**
+     * 
+     */
+    private function jsonRequestDb()
+    {
+        $selectDb = "";
+        if (isset($this->_request['selectDb']) && trim($this->_request['selectDb']) != "") {
+            $selectDb = $this->_request['selectDb'];
+        }
 
-      $conn = new CatalogDb($selectDb, $this->_srv, $this->_usr, $this->_pwd);
-      if($this->_request['type'] == 'findSrv'){
-         $arrResult = $conn->getDB();
-         //$arrResult2 = $conn->getReservedWord();
-         //$arrResult = array_merge($arrResult,$arrResult2);
-         
-      }elseif($this->_request['type'] == 'sendSql'){
-         $arrResult = $conn->getTblResult($this->_request['strSql']);
-         
-      }elseif($this->_request['type'] == 'explainSql'){
-         $arrResult = $conn->getExplainTables($this->_request['strSql']);
-         
-      }elseif($this->_request['type'] == 'showTbl'){
-         $arrResult = $conn->getShowTables();
-         
-      }elseif($this->_request['type'] == 'showHlp'){
-         $arrResult = $conn->getShowHelp();
-         
-      }elseif($this->_request['type'] == 'showListHelp'){
-         $arr = explode(':', $this->_request['showListHelp']);
-         $arrResult = $conn->getShowExpHelp($arr[0]);
-         
-      }
-      
-      ob_clean();
-      echo json_encode($arrResult);
-   }
+        $conn = new CatalogDb($selectDb, $this->_srv, $this->_usr, $this->_pwd);
+        if ($this->_type == 'findSrv') {
+            $arrResult = $conn->getDB();
+            //$arrResult2 = $conn->getReservedWord();
+            //$arrResult = array_merge($arrResult,$arrResult2);
+        } elseif ($this->_type == 'sendSql') {
+            $arrResult = $conn->getTblResult($this->_request['strSql']);
+        } elseif ($this->_type == 'explainSql') {
+            $arrResult = $conn->getExplainTables($this->_request['strSql']);
+        } elseif ($this->_type == 'showTbl') {
+            $arrResult = $conn->getShowTables();
+        } elseif ($this->_type == 'showHlp') {
+            $arrResult = $conn->getShowHelp();
+        } elseif ($this->_type == 'showListHelp') {
+            $arr = explode(':', $this->_request['showListHelp']);
+            $arrResult = $conn->getShowExpHelp($arr[0]);
+        }
 
-   /**
-    * manipulate xml
-    */
-   private function requestXml()
-   {
-      $strTitle = $strSql = "";
-      if(isset($this->_request['strSql'])){
-         $strSql = $this->_request['strSql'];
-      }
-      if(isset($this->_request['title'])){
-         $strTitle = $this->_request['title'];
-      }
-      $conn = new CatalogXml($strSql, $strTitle);
+        ob_clean();
+        echo json_encode($arrResult);
+    }
 
-      if($this->_request['type'] == 'addItem' && isset($this->_request['strSql']) && $this->_request['strSql'] != ""){
-         $conn->addItem($this->_request['addRadio']);
-         
-      }elseif($this->_request['type'] == 'addGroup'){
-         $conn->addGroup();
-         
-      }elseif($this->_request['type'] == 'delGroup'){
-         $arr = $this->loadGroups($this->_request);
-         $arrGrp = $arr[0];
-         $arrItem = $arr[1];
-         if(!empty($arrGrp)){
-            $conn->deleteGroup($arrGrp);
-         }
-         if(!empty($arrItem)){
-            $conn->deleteItem($arrItem);
-         }
-      }
-   }
+    /**
+     * manipulate xml
+     */
+    private function requestXml()
+    {
+        $strTitle = $strSql = "";
+        if (isset($this->_request['strSql'])) {
+            $strSql = $this->_request['strSql'];
+        }
+        if (isset($this->_request['title'])) {
+            $strTitle = $this->_request['title'];
+        }
 
-   /**
-    * change view theme
-    */
-   private function requestView()
-   {
-      $f = new ManageFiles();
-      $f->saveConfView($this->_request);
-   }
+        $conn = new CatalogXml($strSql, $strTitle);
+        if ($this->_type == 'addItem' && isset($this->_request['strSql'])) {
+            $conn->addItem($this->_request['addRadio']);
+        } elseif ($this->_type == 'addGroup') {
+            $conn->addGroup();
+        } elseif ($this->_type == 'delGroup') {
+            $arr = $this->loadGroups($this->_request);
+            // delete group
+            if (!empty($arr[0])) {
+                $conn->deleteGroup($arr[0]);
+            }
+            // delete item
+            if (!empty($arr[1])) {
+                $conn->deleteItem($arr[1]);
+            }
+        }
+    }
 
-   /**
-    * desglose array
-    * @param array $request
-    * @return array
-    */
-   private function loadGroups($request)
-   {
-      $arrItem = $arrGrp = array();
-      $grp = "";
-      foreach($request as $k => $val){
-         if($val != 'on'){
-            continue;
-         }
-         $arr = explode("_", $k);
-         if($arr[0] == 'grp'){
-            $arrGrp[$arr[1]] = $arr[1];
-            $grp = $arr[1];
-            continue;
-         }elseif($arr[0] == 'itemGrp' && $arr[1] == $grp){
-            continue;
-         }else{
-            $arrItem[$arr[1]][] = $arr[2];
-         }
-         $grp = "";
-      }
-      return array($arrGrp, $arrItem);
-   }
+    /**
+     * change view theme
+     */
+    private function requestView()
+    {
+        $f = new ManageFiles();
+        $f->saveConfView($this->_request);
+    }
+
+    /**
+     * desglose array
+     * @param array $request
+     * @return array
+     */
+    private function loadGroups($request)
+    {
+        $arrItem = $arrGrp = [];
+        $grp = "";
+        foreach ($request as $k => $val) {
+            if ($val != 'on') {
+                continue;
+            }
+            $arr = explode("_", $k);
+            if ($arr[0] == 'grp') {
+                $arrGrp[$arr[1]] = $arr[1];
+                $grp = $arr[1];
+                continue;
+            } elseif ($arr[0] == 'itemGrp' && $arr[1] == $grp) {
+                continue;
+            } else {
+                $arrItem[$arr[1]][] = $arr[2];
+            }
+            $grp = "";
+        }
+        return [$arrGrp, $arrItem];
+    }
+
+    /**
+     * set private variables
+     * @param array $arr
+     * @param array $arr1
+     * @param array $arr2
+     */
+    private function setVar($arr, &$arr1, &$arr2)
+    {
+        foreach ($arr as $k => $v) {
+            $p = "_".$v;
+            $this->$p = $arr1[$v];
+            unset($arr1[$v]);
+            unset($arr2[$v]);
+        }
+    }
+
+    /**
+     * delete empty element of array
+     * @param array $arr
+     */
+    private function cleanArray(&$arr)
+    {
+        foreach ($arr as $k => $v) {
+            if (is_null($v)) {
+                unset($arr[$k]);
+            }
+        }
+    }
 
 }

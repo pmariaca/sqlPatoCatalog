@@ -134,7 +134,7 @@
    });
    
    $(document).on("click", ".tab_plus", function() {
-      idDivContainer = $(this).closest('div').attr('id');
+      idDivContainer = $(this).parents('.resultShow').attr('id');
       addTab();
       $('#'+idDivContainer + ' .resultTab a:last').tab('show');
       tabActive('oTextarea').focus();

@@ -4,7 +4,7 @@
  * @license http://opensource.org/licenses/MIT
  */
 $(document).ready(function() {
-   var urlCatalog = "includes/Catalog.php?";
+   var urlCatalog = "index.php?";
    var flgIni = 0;
    var tabSendSql; 
    MoreTabs.init('resultShow2');
@@ -50,7 +50,7 @@ $(document).ready(function() {
          if(title === null || $.trim(title) == "")return;
          else{
             var data = $("#form_content").serializeArray();
-            data[0] = MoreTabs.getTabActive('oStrSql');
+            data.push(MoreTabs.getTabActive('oStrSql'));
             doAjax('xml', id, 'html', data, ["addItem&title=" + title]);
          }
       });
@@ -119,7 +119,7 @@ $(document).ready(function() {
       var tabn = $("ul#ttab li.active a").attr('href');
       if(tabn == '#tab1'){
          if($.trim($("#nameGroup").val()) == "")return;
-         doAjax('xml', 'addGroup', 'html', $("#tab2 :input").serializeArray(), ["addGroup&title=" + $("#nameGroup").val()]);
+         doAjax('xml', 'addGroup', 'html', $("#tab1 :input").serializeArray(), ["addGroup&title=" + $("#nameGroup").val()]);
 
       }else if(tabn == '#tab2'){
          doAjax('xml', 'delGroup', 'html', $("#tab2 :input").serializeArray());
