@@ -3,6 +3,7 @@ sqlPatoCatalog
 README
 
 sqlPatoCatalog is a catalog where you can save and organize your query statments and run them. As well you can generate reports of the SQL statment result in csv or pdf. 
+(images in http://patriciamariaca.com/ )
 
 With this catalog you can:
 
