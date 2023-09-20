@@ -167,7 +167,7 @@
          <div id="main_div" class="main_div" >
             <div class="divSelectDb" >
                <select class="form-control selectDb" id="selectDb" name="selectDb">
-               <?php if(is_array($arrDb)): ?>
+               <?php if(is_array($arrDb) && !empty($arrDb)): ?>
                   <?php foreach($arrDb as $db): ?>
                      <?= "<option>" . $db . "</option>"; ?>
                   <?php endforeach; ?>
