@@ -134,6 +134,7 @@ class Page
         $arr['themeItem'] = $this->_themeItem;
         $arr['getHeader'] = $this->_strScript;
         $arr['arrWatch'] = $this->_arrWatch;
+        $arr['arrDb'] = [];
         extract($arr);
         ob_start();
         include('catalogPage.php');
