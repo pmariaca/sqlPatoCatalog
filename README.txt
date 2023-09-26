@@ -3,7 +3,7 @@ sqlPatoCatalog
 README
 
 sqlPatoCatalog is a catalog where you can save and organize your query statments and run them. As well you can generate reports of the SQL statment result in csv or pdf. 
-(images in http://patriciamariaca.com/ )
+(images in https://pmariaca.github.io/?p=20221104 )
 
 With this catalog you can:
 
@@ -21,7 +21,7 @@ With this catalog you can:
 
 --------------------------------------------------------
 
-Tested with Php.5.12 with MySqli extension, Mysql 5.6, and Apache or lighttpd server, and in browsers like Firefox and Chrome.
+Tested with Php.5.12 and Php 7.4 with MySqli extension, Mysql 5.6 and 8.0, and Apache or lighttpd server, and in browsers like Firefox and Chrome.
 
 INSTALL
 Unzip in some directory
